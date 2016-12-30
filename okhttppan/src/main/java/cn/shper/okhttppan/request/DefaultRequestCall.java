@@ -2,7 +2,7 @@ package cn.shper.okhttppan.request;
 
 import java.util.concurrent.TimeUnit;
 
-import cn.shper.okhttppan.OkHttpRequest;
+import cn.shper.okhttppan.OkHttpPan;
 import cn.shper.okhttppan.callback.HttpCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.utils.Logger;
@@ -23,7 +23,7 @@ public class DefaultRequestCall extends BaseRequestCall {
         request = baseRequest.buildRequest(null);
         // 如果自定义了 Timeout 设置新的 Client
         if (baseRequest.getConnectTimeout() > 0 || baseRequest.getReadTimeout() > 0 || baseRequest.getWriteTimeout() > 0) {
-            OkHttpClient newClient = OkHttpRequest.getInstance().getClient()
+            OkHttpClient newClient = OkHttpPan.getInstance().getClient()
                     .newBuilder()
                     .connectTimeout(baseRequest.getConnectTimeout() == 0 ? HttpConstants.Timeout.DEFAULT_CONNECT : baseRequest.getConnectTimeout(), TimeUnit.SECONDS)
                     .readTimeout(baseRequest.getReadTimeout() == 0 ? HttpConstants.Timeout.DEFAULT_READ : baseRequest.getReadTimeout(), TimeUnit.SECONDS)
@@ -36,7 +36,7 @@ public class DefaultRequestCall extends BaseRequestCall {
                     " WriteTimeout: " + newClient.writeTimeoutMillis() / 1000);
             call = newClient.newCall(request);
         } else {
-            call = OkHttpRequest.getInstance().getClient().newCall(request);
+            call = OkHttpPan.getInstance().getClient().newCall(request);
         }
     }
 
@@ -46,6 +46,6 @@ public class DefaultRequestCall extends BaseRequestCall {
             callback.onBefore(request, getOkHttpRequest().getRequestId());
         }
 
-        OkHttpRequest.getInstance().execute(this, clazz, callback);
+        OkHttpPan.getInstance().execute(this, clazz, callback);
     }
 }

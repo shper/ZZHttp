@@ -40,7 +40,7 @@ import okhttp3.Response;
  * <p>
  * <p>
  * 使用列子：
- * OkHttpRequest.post() or .get() or .download() or .upload()   // [必选] post 、get 、download 、upload 请求
+ * OkHttpPan.post() or .get() or .download() or .upload()   // [必选] post 、get 、download 、upload 请求
  * .url(<$URL>)                                                  // [必选] 请求 的 URL
  * .params("XXO", xxo)                                           // [可选] 请求参数（可多个）
  * .files("Key", Map<String, File> files)                        // [可选] POST 专用，使用此标签 上传文件
@@ -56,13 +56,13 @@ import okhttp3.Response;
  * .token(key,value)                                             // [可选] 使用此标签 请求中带 token
  * .build().execute(<$Entity>.class, callback);
  */
-public class OkHttpRequest {
+public class OkHttpPan {
 
     private static OkHttpClient defaultClient;
-    private static OkHttpRequest instance;
+    private static OkHttpPan instance;
     private static Handler respHandler;
 
-    private OkHttpRequest() {
+    private OkHttpPan() {
     }
 
     /**
@@ -79,11 +79,11 @@ public class OkHttpRequest {
         respHandler = new Handler(Looper.getMainLooper());
     }
 
-    public static OkHttpRequest getInstance() {
+    public static OkHttpPan getInstance() {
         if (null == instance) {
-            synchronized (OkHttpRequest.class) {
+            synchronized (OkHttpPan.class) {
                 if (null == instance) {
-                    instance = new OkHttpRequest();
+                    instance = new OkHttpPan();
                 }
             }
         }
@@ -135,7 +135,7 @@ public class OkHttpRequest {
             public void onResponse(final Call call, final Response response) {
                 try {
                     if (call.isCanceled()) {
-                        Logger.e(OkHttpRequest.class.getName() + "请求被取消");
+                        Logger.e(OkHttpPan.class.getName() + "请求被取消");
                         // 发送失败回调消息
                         sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_CANCELED), callback, id);
                         return;
@@ -144,7 +144,7 @@ public class OkHttpRequest {
                     sendDefaultSuccessResultCallback(response, clazz, callback, id, jsonStatusKey,
                             jsonStatusSuccessValue, jsonDataKey, requestMethod);
                 } catch (Exception e) {
-                    Logger.e(OkHttpRequest.class.getName() + "http code = " + response.code() +
+                    Logger.e(OkHttpPan.class.getName() + "http code = " + response.code() +
                             ", response msg : " + response.message());
                     // 发送失败回调消息
                     sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_UNKNOWN), callback, id);
@@ -182,7 +182,7 @@ public class OkHttpRequest {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     if (call.isCanceled()) {
-                        Logger.e(OkHttpRequest.class.getName() + "请求被取消");
+                        Logger.e(OkHttpPan.class.getName() + "请求被取消");
                         // 发送失败回调消息
                         respHandler.post(new Runnable() {
                             @Override
@@ -195,7 +195,7 @@ public class OkHttpRequest {
                     // 发送成功回调消息
                     sendDownloadSuccessResultCallback(response, savePath, saveFileName, requestId, finalCallback);
                 } catch (Exception e) {
-                    Logger.e("[Http]" + OkHttpRequest.class.getName() + "http code = " +
+                    Logger.e("[Http]" + OkHttpPan.class.getName() + "http code = " +
                             response.code() + ", response msg : " + response.message());
                     final HttpError error = new HttpError(HttpError.ERR_CODE_UNKNOWN);
                     // 发送失败回调消息
@@ -333,7 +333,7 @@ public class OkHttpRequest {
             });
         } catch (Exception e) {
             e.printStackTrace();
-            Logger.e("[Http] - " + OkHttpRequest.class.getName() + " code = " +
+            Logger.e("[Http] - " + OkHttpPan.class.getName() + " code = " +
                     response.code() + ", response msg : " + response.message());
             sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_UNKNOWN,
                     e.getClass().getName() + " : " + e.getMessage()), callback, requestId);
@@ -406,7 +406,7 @@ public class OkHttpRequest {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Logger.e("[Http] - " + OkHttpRequest.class.getName() + " code = " +
+            Logger.e("[Http] - " + OkHttpPan.class.getName() + " code = " +
                     response.code() + ", response msg : " + response.message());
             final HttpError error = new HttpError(HttpError.ERR_CODE_UNKNOWN,
                     e.getClass().getName() + " : " + e.getMessage());

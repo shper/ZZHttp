@@ -2,7 +2,7 @@ package cn.shper.okhttppan.request;
 
 import java.util.concurrent.TimeUnit;
 
-import cn.shper.okhttppan.OkHttpRequest;
+import cn.shper.okhttppan.OkHttpPan;
 import cn.shper.okhttppan.callback.UploadCallback;
 import cn.shper.okhttppan.utils.Logger;
 import okhttp3.OkHttpClient;
@@ -26,7 +26,7 @@ public class UploadRequestCall extends BaseRequestCall {
                 " ReadTimeout: " + baseRequest.getReadTimeout() +
                 " WriteTimeout: " + baseRequest.getWriteTimeout());
         request = baseRequest.buildRequest(callback);
-        uploadClient = OkHttpRequest.getInstance().getClient()
+        uploadClient = OkHttpPan.getInstance().getClient()
                 .newBuilder()
                 .connectTimeout(baseRequest.getConnectTimeout(), TimeUnit.SECONDS)
                 .readTimeout(baseRequest.getReadTimeout(), TimeUnit.SECONDS)
@@ -41,7 +41,7 @@ public class UploadRequestCall extends BaseRequestCall {
             callback.onStart(request, getOkHttpRequest().getRequestId());
         }
 
-        OkHttpRequest.getInstance().execute(this, clazz, callback);
+        OkHttpPan.getInstance().execute(this, clazz, callback);
     }
 
 }

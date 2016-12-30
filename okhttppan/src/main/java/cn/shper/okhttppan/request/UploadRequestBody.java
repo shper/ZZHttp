@@ -2,7 +2,7 @@ package cn.shper.okhttppan.request;
 
 import java.io.IOException;
 
-import cn.shper.okhttppan.OkHttpRequest;
+import cn.shper.okhttppan.OkHttpPan;
 import cn.shper.okhttppan.callback.BaseCallback;
 import cn.shper.okhttppan.callback.UploadCallback;
 import cn.shper.okhttppan.utils.Logger;
@@ -68,7 +68,7 @@ public class UploadRequestBody extends RequestBody {
                 }
                 current += byteCount;
                 final long finalCurrent = current;
-                OkHttpRequest.getInstance().getRespHandler().post(new Runnable() {
+                OkHttpPan.getInstance().getRespHandler().post(new Runnable() {
                     @Override
                     public void run() {
                         callback.inProgress(finalCurrent * 1.0f / contentLength, finalCurrent, contentLength, requestId);
