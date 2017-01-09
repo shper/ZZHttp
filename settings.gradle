@@ -1,1 +1,1 @@
-include ':sample-okhttppan', ':okhttppan'
+include ':okhttppan'
