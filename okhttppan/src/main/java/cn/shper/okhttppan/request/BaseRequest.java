@@ -18,7 +18,6 @@ public abstract class BaseRequest<T extends BaseRequest> {
     protected Object tag;
     protected HashMap<String, Object> params;
     protected HashMap<String, String> headers;
-    protected int requestId;
     protected String requestMethod;
 
     protected String jsonStatusKey;
@@ -72,11 +71,6 @@ public abstract class BaseRequest<T extends BaseRequest> {
 
     public T forceLogin(Boolean forceLogin) {
         this.forceLogin = forceLogin;
-        return (T) this;
-    }
-
-    public T requestId(int requestId) {
-        this.requestId = requestId;
         return (T) this;
     }
 
@@ -180,10 +174,6 @@ public abstract class BaseRequest<T extends BaseRequest> {
 
     public int getWriteTimeout() {
         return writeTimeout;
-    }
-
-    public int getRequestId() {
-        return requestId;
     }
 
     public String getRequestMethod() {

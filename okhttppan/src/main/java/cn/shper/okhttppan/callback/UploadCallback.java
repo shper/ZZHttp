@@ -10,11 +10,11 @@ import okhttp3.Request;
  */
 public abstract class UploadCallback<T> extends BaseCallback {
 
-    public abstract void onStart(Request request, int requestId);
+    public abstract void onStart(Request request);
 
-    public abstract void inProgress(float progress, long current, long total, int requestId);
+    public abstract void inProgress(float progress, long current, long total);
 
-    public abstract void onComplete(T obj, int requestId);
+    public abstract void onComplete(T obj);
 
     /**
      * 默认 Callback
@@ -22,19 +22,19 @@ public abstract class UploadCallback<T> extends BaseCallback {
     public static UploadCallback DEFAULT = new UploadCallback() {
 
         @Override
-        public void onStart(Request request, int requestId) {
+        public void onStart(Request request) {
         }
 
         @Override
-        public void inProgress(float progress, long current, long total, int requestId) {
+        public void inProgress(float progress, long current, long total) {
         }
 
         @Override
-        public void onComplete(Object obj, int requestId) {
+        public void onComplete(Object obj) {
         }
 
         @Override
-        public void onFail(HttpError error, int requestId) {
+        public void onFail(HttpError error) {
         }
     };
 

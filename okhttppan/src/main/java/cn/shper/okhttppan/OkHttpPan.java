@@ -138,7 +138,6 @@ public class OkHttpPan {
     // 执行 get post 请求
     public <T> void execute(BaseRequestCall requestCall, final Class<T> clazz, final BaseCallback callback) {
         // 获取 请求参数
-        final int id = requestCall.getOkHttpRequest().getRequestId();
         final String requestMethod = requestCall.getOkHttpRequest().getRequestMethod();
         // 获取 json 相关的数据
         final String jsonStatusKey = !TextUtils.isEmpty(requestCall.getOkHttpRequest().getJsonStatusKey()) ?
@@ -153,7 +152,7 @@ public class OkHttpPan {
             public void onFailure(Call call, IOException e) {
                 final HttpError error = createHttpError(call, e);
                 // 发送失败回调消息
-                sendDefaultFailResultCallback(error, callback, id);
+                sendDefaultFailResultCallback(error, callback);
             }
 
             @Override
@@ -162,17 +161,17 @@ public class OkHttpPan {
                     if (call.isCanceled()) {
                         Logger.e(OkHttpPan.class.getName() + "请求被取消");
                         // 发送失败回调消息
-                        sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_CANCELED), callback, id);
+                        sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_CANCELED), callback);
                         return;
                     }
                     // 发送成功回调消息
-                    sendDefaultSuccessResultCallback(response, clazz, callback, id, jsonStatusKey,
+                    sendDefaultSuccessResultCallback(response, clazz, callback, jsonStatusKey,
                             jsonStatusSuccessValue, jsonDataKey, requestMethod);
                 } catch (Exception e) {
                     Logger.e(OkHttpPan.class.getName() + "http code = " + response.code() +
                             ", response msg : " + response.message());
                     // 发送失败回调消息
-                    sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_UNKNOWN), callback, id);
+                    sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_UNKNOWN), callback);
                 }
             }
         });
@@ -186,7 +185,6 @@ public class OkHttpPan {
         final DownloadCallback finalCallback = callback;
 
         // 获取 请求参数
-        final int requestId = requestCall.getOkHttpRequest().getRequestId();
         final String savePath = requestCall.getOkHttpRequest().getSavePath();
         final String saveFileName = requestCall.getOkHttpRequest().getSaveFileName();
 
@@ -198,7 +196,7 @@ public class OkHttpPan {
                 respHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        finalCallback.onFail(error, requestId);
+                        finalCallback.onFail(error);
                     }
                 });
             }
@@ -212,13 +210,13 @@ public class OkHttpPan {
                         respHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                finalCallback.onFail(new HttpError(HttpError.ERR_CODE_CANCELED), requestId);
+                                finalCallback.onFail(new HttpError(HttpError.ERR_CODE_CANCELED));
                             }
                         });
                         return;
                     }
                     // 发送成功回调消息
-                    sendDownloadSuccessResultCallback(response, savePath, saveFileName, requestId, finalCallback);
+                    sendDownloadSuccessResultCallback(response, savePath, saveFileName, finalCallback);
                 } catch (Exception e) {
                     Logger.e("[Http]" + OkHttpPan.class.getName() + "http code = " +
                             response.code() + ", response msg : " + response.message());
@@ -227,7 +225,7 @@ public class OkHttpPan {
                     respHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            finalCallback.onFail(error, requestId);
+                            finalCallback.onFail(error);
                         }
                     });
                 }
@@ -252,7 +250,7 @@ public class OkHttpPan {
     }
 
     // 获取数据失败
-    private void sendDefaultFailResultCallback(final HttpError error, final BaseCallback callback, final int id) {
+    private void sendDefaultFailResultCallback(final HttpError error, final BaseCallback callback) {
         if (callback == null) {
             return;
         }
@@ -260,14 +258,13 @@ public class OkHttpPan {
         respHandler.post(new Runnable() {
             @Override
             public void run() {
-                callback.onFail(error, id);
+                callback.onFail(error);
             }
         });
     }
 
     // 获取数据成功
-    private <T> void sendDefaultSuccessResultCallback(Response response, Class<T> clazz,
-                                                      final BaseCallback callback, final int requestId,
+    private <T> void sendDefaultSuccessResultCallback(Response response, Class<T> clazz, final BaseCallback callback,
                                                       final String jsonStatusKey, final String jsonStatusSuccessValue,
                                                       final String jsonDataKey, final String requestMethod) {
         try {
@@ -283,7 +280,7 @@ public class OkHttpPan {
                 result.error = new HttpError(code, msg);
             } else { // http请求成功
                 String respStr = response.body().string();
-                Logger.d("requestId = " + requestId + ", respStr = " + respStr);
+                Logger.d("respStr = " + respStr);
                 response.body().close();
                 // log 打印
                 if (BuildConfig.DEBUG) {
@@ -294,7 +291,7 @@ public class OkHttpPan {
                         Logger.d(respStr.substring(i, end).trim());
                     }
                 }
-                // TODO 没有配置Json状态信息时，直接解析 或者 直接返回 json
+                // 没有配置Json状态信息时，直接解析 或者 直接返回 json
                 JSONObject json = JSONObject.parseObject(respStr);
                 if (json != null) {
                     if (!TextUtils.isEmpty(jsonStatusKey) && json.containsKey(jsonStatusKey)) {
@@ -344,12 +341,12 @@ public class OkHttpPan {
                     if (callback != null) {
                         if (result.success) {
                             if (HttpConstants.Method.UPLOAD.equals(requestMethod) && callback instanceof UploadCallback) {
-                                ((UploadCallback) callback).onComplete(result.data, requestId);
+                                ((UploadCallback) callback).onComplete(result.data);
                             } else if (callback instanceof HttpCallback) {
-                                ((HttpCallback) callback).onSuccess(result.data, requestId);
+                                ((HttpCallback) callback).onSuccess(result.data);
                             }
                         } else {
-                            callback.onFail(result.error, requestId);
+                            callback.onFail(result.error);
                         }
                     }
                 }
@@ -359,13 +356,13 @@ public class OkHttpPan {
             Logger.e("[Http] - " + OkHttpPan.class.getName() + " code = " +
                     response.code() + ", response msg : " + response.message());
             sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_UNKNOWN,
-                    e.getClass().getName() + " : " + e.getMessage()), callback, requestId);
+                    e.getClass().getName() + " : " + e.getMessage()), callback);
         }
     }
 
     // 下载完成 数据处理
     private void sendDownloadSuccessResultCallback(Response response, String destFileDir, String destFileName,
-                                                   final int requestId, final DownloadCallback callback) {
+                                                   final DownloadCallback callback) {
         try {
             final Result result = new Result();
             // http请求失败
@@ -399,8 +396,8 @@ public class OkHttpPan {
                         respHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                callback.inProgress(finalCurrent * 1.0f / total, finalCurrent, total, requestId);
-                                Logger.d("[SHPER - requestId: " + requestId + "] current: " + finalCurrent + " total:" + total);
+                                callback.inProgress(finalCurrent * 1.0f / total, finalCurrent, total);
+                                Logger.d("[SHPER] current: " + finalCurrent + " total:" + total);
                             }
                         });
                     }
@@ -409,7 +406,7 @@ public class OkHttpPan {
                     respHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            callback.onComplete(file, requestId);
+                            callback.onComplete(file);
                         }
                     });
                 } finally {
@@ -437,7 +434,7 @@ public class OkHttpPan {
             respHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onFail(error, requestId);
+                    callback.onFail(error);
                 }
             });
         }
@@ -458,9 +455,9 @@ public class OkHttpPan {
     }
 
     private static class Result {
-        public boolean success;
-        public HttpError error;
-        public Object data;
+        boolean success;
+        HttpError error;
+        Object data;
     }
 
     /**

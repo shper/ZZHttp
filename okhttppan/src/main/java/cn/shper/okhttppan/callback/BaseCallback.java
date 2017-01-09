@@ -9,6 +9,6 @@ import cn.shper.okhttppan.constant.HttpError;
  */
 public abstract class BaseCallback {
 
-    public abstract void onFail(HttpError error, int requestId);
+    public abstract void onFail(HttpError error);
 
 }

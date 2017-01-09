@@ -10,21 +10,21 @@ import okhttp3.Request;
  */
 public abstract class HttpCallback<T> extends BaseCallback {
 
-    public void onBefore(Request request, int requestId) {
+    public void onBefore(Request request) {
     }
 
-    public abstract void onSuccess(T obj, int requestId);
+    public abstract void onSuccess(T obj);
 
     /**
      * 默认 Callback
      */
     public static HttpCallback DEFAULT = new HttpCallback() {
         @Override
-        public void onSuccess(Object obj, int requestId) {
+        public void onSuccess(Object obj) {
         }
 
         @Override
-        public void onFail(HttpError error, int requestId) {
+        public void onFail(HttpError error) {
         }
     };
 

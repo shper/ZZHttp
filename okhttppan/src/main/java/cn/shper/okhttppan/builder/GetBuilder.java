@@ -39,7 +39,6 @@ public class GetBuilder extends BaseBuilder<GetBuilder> {
                 .jsonStatusKey(jsonStatusKey)
                 .jsonStatusSuccessValue(jsonStatusSuccessValue)
                 .jsonDataKey(jsonDataKey)
-                .requestId(requestId)
                 .tag(tag)
                 .build();
     }

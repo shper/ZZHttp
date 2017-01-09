@@ -48,7 +48,6 @@ public class UploadBuilder extends BaseBuilder<UploadBuilder> {
                 .connectTimeout(connectTimeout)
                 .writeTimeout(writeTimeout)
                 .readTimeout(readTimeout)
-                .requestId(requestId)
                 .tag(tag)
                 .build();
     }

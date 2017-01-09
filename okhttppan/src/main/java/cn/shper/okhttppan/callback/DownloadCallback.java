@@ -12,11 +12,11 @@ import okhttp3.Request;
  */
 public abstract class DownloadCallback extends BaseCallback {
 
-    public abstract void onStart(Request request, int requestId);
+    public abstract void onStart(Request request);
 
-    public abstract void inProgress(float progress, long current, long total, int requestId);
+    public abstract void inProgress(float progress, long current, long total);
 
-    public abstract void onComplete(File file, int requestId);
+    public abstract void onComplete(File file);
 
     /**
      * 默认 Callback
@@ -24,19 +24,19 @@ public abstract class DownloadCallback extends BaseCallback {
     public static DownloadCallback DEFAULT = new DownloadCallback() {
 
         @Override
-        public void onStart(Request request, int requestId) {
+        public void onStart(Request request) {
         }
 
         @Override
-        public void inProgress(float progress, long current, long total, int requestId) {
+        public void inProgress(float progress, long current, long total) {
         }
 
         @Override
-        public void onComplete(File file, int requestId) {
+        public void onComplete(File file) {
         }
 
         @Override
-        public void onFail(HttpError error, int requestId) {
+        public void onFail(HttpError error) {
         }
     };
 

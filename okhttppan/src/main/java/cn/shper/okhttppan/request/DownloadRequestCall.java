@@ -38,7 +38,7 @@ public class DownloadRequestCall extends BaseRequestCall {
     public void execute(DownloadCallback callback) {
         buildCall();
         if (callback != null) {
-            callback.onStart(request, getOkHttpRequest().getRequestId());
+            callback.onStart(request);
         }
 
         OkHttpPan.getInstance().execute(this, callback);

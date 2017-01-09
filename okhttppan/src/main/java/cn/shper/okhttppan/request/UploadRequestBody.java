@@ -24,16 +24,14 @@ public class UploadRequestBody extends RequestBody {
     private UploadCallback callback;
     private BufferedSink bufferedSink;
     private RequestBody requestBody;
-    private int requestId;
 
-    public UploadRequestBody(RequestBody requestBody, BaseCallback callback, int requestId) {
+    public UploadRequestBody(RequestBody requestBody, BaseCallback callback) {
         this.requestBody = requestBody;
         if (callback != null && callback instanceof UploadCallback) {
             this.callback = (UploadCallback) callback;
         } else {
             this.callback = UploadCallback.DEFAULT;
         }
-        this.requestId = requestId;
     }
 
     @Override
@@ -71,8 +69,8 @@ public class UploadRequestBody extends RequestBody {
                 OkHttpPan.getInstance().getRespHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        callback.inProgress(finalCurrent * 1.0f / contentLength, finalCurrent, contentLength, requestId);
-                        Logger.d("[requestId: " + requestId + "] current: " + finalCurrent + " total:" + contentLength);
+                        callback.inProgress(finalCurrent * 1.0f / contentLength, finalCurrent, contentLength);
+                        Logger.d("current: " + finalCurrent + " total:" + contentLength);
                     }
                 });
             }

@@ -25,7 +25,7 @@ public class UpLoadRequest extends BaseRequest<UpLoadRequest> {
     private List<FileInput> files;
 
     Request buildRequest(BaseCallback callback) {
-        return builder.post(new UploadRequestBody(buildRequestBody(), callback, getRequestId())).build();
+        return builder.post(new UploadRequestBody(buildRequestBody(), callback)).build();
     }
 
     public UpLoadRequest files(List<FileInput> files) {

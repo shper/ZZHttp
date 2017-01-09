@@ -43,7 +43,6 @@ public class PostBuilder extends BaseBuilder<PostBuilder> {
                 .connectTimeout(connectTimeout)
                 .writeTimeout(writeTimeout)
                 .readTimeout(readTimeout)
-                .requestId(requestId)
                 .tag(tag)
                 .build();
     }

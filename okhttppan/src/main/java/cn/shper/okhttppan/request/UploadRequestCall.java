@@ -38,7 +38,7 @@ public class UploadRequestCall extends BaseRequestCall {
     public <T> void execute(Class<T> clazz, UploadCallback callback) {
         buildCall(callback);
         if (callback != null) {
-            callback.onStart(request, getOkHttpRequest().getRequestId());
+            callback.onStart(request);
         }
 
         OkHttpPan.getInstance().execute(this, clazz, callback);

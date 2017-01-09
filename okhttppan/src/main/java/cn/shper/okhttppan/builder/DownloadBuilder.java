@@ -58,7 +58,6 @@ public class DownloadBuilder extends BaseBuilder<DownloadBuilder> {
                 .connectTimeout(connectTimeout)
                 .writeTimeout(writeTimeout)
                 .readTimeout(readTimeout)
-                .requestId(requestId)
                 .tag(tag)
                 .build();
     }
