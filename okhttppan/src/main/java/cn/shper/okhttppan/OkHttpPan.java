@@ -2,6 +2,7 @@ package cn.shper.okhttppan;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -27,6 +28,7 @@ import cn.shper.okhttppan.callback.HttpCallback;
 import cn.shper.okhttppan.callback.UploadCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.constant.HttpError;
+import cn.shper.okhttppan.entity.OkHttpPanConfig;
 import cn.shper.okhttppan.request.BaseRequestCall;
 import cn.shper.okhttppan.utils.Logger;
 import okhttp3.Call;
@@ -44,7 +46,7 @@ import okhttp3.Response;
  * .url(<$URL>)                                                  // [必选] 请求 的 URL
  * .params("XXO", xxo)                                           // [可选] 请求参数（可多个）
  * .files("Key", Map<String, File> files)                        // [可选] POST 专用，使用此标签 上传文件
- * .addFile(“name”, “filename”, File file)                       // [可选] POST 专用，使用此标签 上传文件
+ * .addFile(“name”, “filename”, File file)                      // [可选] POST 专用，使用此标签 上传文件
  * .savePath(String savePath)                                    // [可选] DOWNLOAD 专用，使用此标签 存储文件地址
  * .saveFileName(String saveFileName)                            // [可选] DOWNLOAD 专用，使用此标签 存储文件名
  * .jsonStatusKey("status")                                      // [可选] 自定义解析返回json中的状态字段；默认值：status
@@ -58,6 +60,10 @@ import okhttp3.Response;
  */
 public class OkHttpPan {
 
+    private String jsonStatusKey;
+    private String jsonStatusSuccessValue;
+    private String jsonDataKey;
+
     private static OkHttpClient defaultClient;
     private static OkHttpPan instance;
     private static Handler respHandler;
@@ -68,15 +74,30 @@ public class OkHttpPan {
     /**
      * tips:此方式必须在 application 中实现
      */
-    public static void initClient() {
+    public static void initialization() {
+        initialization(new OkHttpPanConfig.Builder()
+                .connectTimeout(HttpConstants.Timeout.DEFAULT_CONNECT)
+                .readTimeout(HttpConstants.Timeout.DEFAULT_READ)
+                .writeTimeout(HttpConstants.Timeout.DEFAULT_WRITE)
+                .Build());
+    }
+
+    public static void initialization(OkHttpPanConfig config) {
         // 设置超时时间
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .connectTimeout(HttpConstants.Timeout.DEFAULT_CONNECT, TimeUnit.SECONDS)
-                .readTimeout(HttpConstants.Timeout.DEFAULT_READ, TimeUnit.SECONDS)
-                .writeTimeout(HttpConstants.Timeout.DEFAULT_WRITE, TimeUnit.SECONDS);
+                .connectTimeout(config.connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(config.readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(config.writeTimeout, TimeUnit.SECONDS);
         defaultClient = builder.build();
         // 初始化Handler
         respHandler = new Handler(Looper.getMainLooper());
+
+        // 初始化 OkHttpPan
+        getInstance();
+        // 定义 json 数据
+        getInstance().jsonStatusKey = config.jsonStatusKey;
+        getInstance().jsonStatusSuccessValue = config.jsonStatusSuccessValue;
+        getInstance().jsonDataKey = config.jsonDataKey;
     }
 
     public static OkHttpPan getInstance() {
@@ -118,10 +139,14 @@ public class OkHttpPan {
     public <T> void execute(BaseRequestCall requestCall, final Class<T> clazz, final BaseCallback callback) {
         // 获取 请求参数
         final int id = requestCall.getOkHttpRequest().getRequestId();
-        final String jsonStatusKey = requestCall.getOkHttpRequest().getJsonStatusKey();
-        final String jsonStatusSuccessValue = requestCall.getOkHttpRequest().getJsonStatusSuccessValue();
-        final String jsonDataKey = requestCall.getOkHttpRequest().getJsonDataKey();
         final String requestMethod = requestCall.getOkHttpRequest().getRequestMethod();
+        // 获取 json 相关的数据
+        final String jsonStatusKey = !TextUtils.isEmpty(requestCall.getOkHttpRequest().getJsonStatusKey()) ?
+                requestCall.getOkHttpRequest().getJsonStatusKey() : this.jsonStatusKey;
+        final String jsonStatusSuccessValue = !TextUtils.isEmpty(requestCall.getOkHttpRequest().getJsonStatusSuccessValue()) ?
+                requestCall.getOkHttpRequest().getJsonStatusSuccessValue() : this.jsonStatusSuccessValue;
+        final String jsonDataKey = !TextUtils.isEmpty(requestCall.getOkHttpRequest().getJsonDataKey()) ?
+                requestCall.getOkHttpRequest().getJsonDataKey() : this.jsonDataKey;
 
         requestCall.getCall().enqueue(new okhttp3.Callback() {
             @Override
@@ -269,45 +294,43 @@ public class OkHttpPan {
                         Logger.d(respStr.substring(i, end).trim());
                     }
                 }
+                // TODO 没有配置Json状态信息时，直接解析 或者 直接返回 json
                 JSONObject json = JSONObject.parseObject(respStr);
-                if (json != null && json.containsKey(jsonStatusKey)) {
-                    Object status = json.get(jsonStatusKey);
-                    // 返回数据正常
-                    if (jsonStatusSuccessValue.equals(String.valueOf(status))) {
-                        // 有获取数据
-                        if (json.containsKey(jsonDataKey)) {
-                            result.success = true;
-                            Object data = json.get(jsonDataKey);
-                            if (data != null) {
-                                if (clazz == null) { // 不需要解析，由调用方自己处理
-                                    result.data = data;
-                                } else {
-                                    if (data instanceof JSONArray) {
-                                        JSONArray dataArray = (JSONArray) data;
-                                        result.data = JSON.parseArray(dataArray.toString(), clazz);
-                                    } else if (data instanceof JSONObject) {
-                                        JSONObject dataObj = (JSONObject) data;
-                                        result.data = JSON.parseObject(dataObj.toString(), clazz);
-                                    }
-                                }
+                if (json != null) {
+                    if (!TextUtils.isEmpty(jsonStatusKey) && json.containsKey(jsonStatusKey)) {
+                        Object status = json.get(jsonStatusKey);
+                        // 返回数据正常
+                        if (jsonStatusSuccessValue.equals(String.valueOf(status))) {
+                            // 有获取数据
+                            if (json.containsKey(jsonDataKey)) {
+                                result.success = true;
+                                result.data = parseJson(json.get(jsonDataKey), clazz);
+                            } else { // 无数据
+                                result.success = false;
+                                result.error = new HttpError(HttpError.ERR_CODE_DATA_EMPTY);
                             }
-                        } else { // 无数据
+                        } else if ("-100".equals(String.valueOf(status))) {
+                            result.success = false;
+                            result.error = new HttpError(Integer.parseInt(String.valueOf(status)),
+                                    String.valueOf(json.get("failed")));
+                        } else if (String.valueOf(HttpError.ERR_CODE_LOGING_TIMEOUT).equals(String.valueOf(status))) { // 登录超时
+                            result.success = false;
+                            result.error = new HttpError(HttpError.ERR_CODE_LOGING_TIMEOUT);
+                        } else { // 操作失败
+                            result.success = false;
+                            result.error = new HttpError(json.containsKey("failed") ?
+                                    HttpError.ERR_CODE_FAILED : HttpError.ERR_CODE_UNKNOWN,
+                                    json.containsKey("failed") ? String.valueOf(json.get("failed")) :
+                                            HttpError.ERR_CODE_UNKNOWN_MSG);
+                        }
+                    } else {
+                        result.success = true;
+                        result.data = parseJson(json.clone(), clazz);
+                        if (null == result.data) {
+                            // 无数据
                             result.success = false;
                             result.error = new HttpError(HttpError.ERR_CODE_DATA_EMPTY);
                         }
-                    } else if ("-100".equals(String.valueOf(status))) {
-                        result.success = false;
-                        result.error = new HttpError(Integer.parseInt(String.valueOf(status)),
-                                String.valueOf(json.get("failed")));
-                    } else if (String.valueOf(HttpError.ERR_CODE_LOGING_TIMEOUT).equals(String.valueOf(status))) { // 登录超时
-                        result.success = false;
-                        result.error = new HttpError(HttpError.ERR_CODE_LOGING_TIMEOUT);
-                    } else { // 操作失败
-                        result.success = false;
-                        result.error = new HttpError(json.containsKey("failed") ?
-                                HttpError.ERR_CODE_FAILED : HttpError.ERR_CODE_UNKNOWN,
-                                json.containsKey("failed") ? String.valueOf(json.get("failed")) :
-                                        HttpError.ERR_CODE_UNKNOWN_MSG);
                     }
                 } else { // 无数据
                     result.success = false;
@@ -418,6 +441,20 @@ public class OkHttpPan {
                 }
             });
         }
+    }
+
+    private <T> Object parseJson(Object data, Class<T> clazz) {
+        // 如clazz为null，不需要解析，由调用方自行处理
+        if (data != null && clazz != null) {
+            if (data instanceof JSONArray) {
+                JSONArray dataArray = (JSONArray) data;
+                return JSON.parseArray(dataArray.toString(), clazz);
+            } else if (data instanceof JSONObject) {
+                JSONObject dataObj = (JSONObject) data;
+                return JSON.parseObject(dataObj.toString(), clazz);
+            }
+        }
+        return data;
     }
 
     private static class Result {

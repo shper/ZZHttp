@@ -24,13 +24,13 @@ public abstract class BaseBuilder<T extends BaseBuilder> {
     protected Object tag;
     protected int requestId;
 
-    protected String jsonStatusKey = "status";
-    protected String jsonStatusSuccessValue = "1";
-    protected String jsonDataKey = "data";
+    protected String jsonStatusKey;
+    protected String jsonStatusSuccessValue;
+    protected String jsonDataKey;
 
-    protected int connectTimeout = 0;
-    protected int readTimeout = 0;
-    protected int writeTimeout = 0;
+    protected int connectTimeout;
+    protected int readTimeout;
+    protected int writeTimeout;
 
     public T params(HashMap<String, Object> params) {
         if (null == this.params) {
