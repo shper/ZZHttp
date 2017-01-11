@@ -2,7 +2,6 @@ package cn.shper.okhttppan.builder;
 
 import android.text.TextUtils;
 
-import cn.shper.okhttppan.BuildConfig;
 import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.request.DownloadRequestCall;
 import cn.shper.okhttppan.request.GetRequest;
@@ -43,9 +42,7 @@ public class DownloadBuilder extends BaseBuilder<DownloadBuilder> {
         if (params != null) {
             url = appendParams(url, params);
             // 打印拼接后的 URL
-            if (BuildConfig.DEBUG) {
                 Logger.d("DOWNLOAD - applyUrl: " + url);
-            }
         }
 
         return (DownloadRequestCall) new GetRequest()

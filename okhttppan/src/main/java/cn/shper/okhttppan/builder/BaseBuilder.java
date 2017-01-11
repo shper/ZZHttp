@@ -22,7 +22,6 @@ public abstract class BaseBuilder<T extends BaseBuilder> {
     protected HashMap<String, String> headers;
     protected HashMap<String, Object> params;
     protected Object tag;
-    protected int requestId;
 
     protected String jsonStatusKey;
     protected String jsonStatusSuccessValue;
@@ -46,11 +45,6 @@ public abstract class BaseBuilder<T extends BaseBuilder> {
             params = new HashMap<>();
         }
         params.put(key, val);
-        return (T) this;
-    }
-
-    public T requestId(int requestId) {
-        this.requestId = requestId;
         return (T) this;
     }
 
@@ -119,25 +113,21 @@ public abstract class BaseBuilder<T extends BaseBuilder> {
 
     // debug 的时候打印日志
     void printLog(String tag) {
-        // debug的时候打印出日志
-        if (BuildConfig.DEBUG) {
-            Logger.d(tag + " - url: " + url);
+            Logger.i(tag + " - url: " + url);
             if (params != null && params.size() > 0) {
                 StringBuffer buffer = new StringBuffer();
                 for (String key : params.keySet()) {
                     buffer.append(key + " : " + params.get(key) + ", ");
                 }
-                Logger.d(tag + " - params: " + buffer.toString());
+                Logger.i(tag + " - params: " + buffer.toString());
             }
             if (headers != null && headers.size() > 0) {
                 StringBuffer buffer = new StringBuffer();
                 for (String key : headers.keySet()) {
                     buffer.append(key + " : " + headers.get(key) + ", ");
                 }
-                Logger.d(tag + " - headers: " + buffer.toString());
+                Logger.i(tag + " - headers: " + buffer.toString());
             }
-            Logger.d(tag + " - requestId: " + requestId);
-        }
     }
 
     /**

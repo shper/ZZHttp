@@ -7,12 +7,14 @@ package cn.shper.okhttppan.entity;
  */
 public class OkHttpPanConfig {
 
-    // 返回 Json 正常时的标识Key
+    // 返回的 Json 正常时的标识Key
     public String jsonStatusKey;
-    // 返回 Json 正常时的成功Value
+    // 返回的 Json 正常时的成功Value
     public String jsonStatusSuccessValue;
-    // 返回 Json 正常时，数据标识Key
+    // 返回的 Json 正常时，数据标识Key
     public String jsonDataKey;
+    // 返回的 Json 失败时的标识Key
+    public String jsonFailedKey;
     // 网络连接超时时间
     public int connectTimeout;
     // 网络读取超时时间
@@ -40,6 +42,11 @@ public class OkHttpPanConfig {
 
         public Builder jsonDataKey(String jsonDataKey) {
             config.jsonDataKey = jsonDataKey;
+            return this;
+        }
+
+        public Builder jsonFailedKey(String jsonFailedKey){
+            config.jsonFailedKey = jsonFailedKey;
             return this;
         }
 

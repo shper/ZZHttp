@@ -60,9 +60,11 @@ import okhttp3.Response;
  */
 public class OkHttpPan {
 
-    private String jsonStatusKey;
-    private String jsonStatusSuccessValue;
-    private String jsonDataKey;
+    // 是否开启 debug 日志
+    public boolean isDebug = false;
+
+    // 配置信息，包含 json 格式定义、timeout 等
+    private OkHttpPanConfig config;
 
     private static OkHttpClient defaultClient;
     private static OkHttpPan instance;
@@ -94,12 +96,27 @@ public class OkHttpPan {
 
         // 初始化 OkHttpPan
         getInstance();
+
         // 定义 json 数据
-        getInstance().jsonStatusKey = config.jsonStatusKey;
-        getInstance().jsonStatusSuccessValue = config.jsonStatusSuccessValue;
-        getInstance().jsonDataKey = config.jsonDataKey;
+        getInstance().config = config;
+
+        Logger.i("OkHttpPan Initialized");
     }
 
+    /**
+     * 是否开启 debug 模式
+     */
+    public static void setDebug(boolean isDebug) {
+        getInstance().isDebug = isDebug;
+    }
+
+    public static boolean isDebugged() {
+        return getInstance().isDebug;
+    }
+
+    /**
+     * 返回单例实例
+     */
     public static OkHttpPan getInstance() {
         if (null == instance) {
             synchronized (OkHttpPan.class) {
@@ -135,17 +152,19 @@ public class OkHttpPan {
         return new UploadBuilder(HttpConstants.Method.UPLOAD);
     }
 
-    // 执行 get post 请求
+    /**
+     * 执行 get post 请求
+     */
     public <T> void execute(BaseRequestCall requestCall, final Class<T> clazz, final BaseCallback callback) {
         // 获取 请求参数
         final String requestMethod = requestCall.getOkHttpRequest().getRequestMethod();
         // 获取 json 相关的数据
         final String jsonStatusKey = !TextUtils.isEmpty(requestCall.getOkHttpRequest().getJsonStatusKey()) ?
-                requestCall.getOkHttpRequest().getJsonStatusKey() : this.jsonStatusKey;
+                requestCall.getOkHttpRequest().getJsonStatusKey() : config.jsonStatusKey;
         final String jsonStatusSuccessValue = !TextUtils.isEmpty(requestCall.getOkHttpRequest().getJsonStatusSuccessValue()) ?
-                requestCall.getOkHttpRequest().getJsonStatusSuccessValue() : this.jsonStatusSuccessValue;
+                requestCall.getOkHttpRequest().getJsonStatusSuccessValue() : config.jsonStatusSuccessValue;
         final String jsonDataKey = !TextUtils.isEmpty(requestCall.getOkHttpRequest().getJsonDataKey()) ?
-                requestCall.getOkHttpRequest().getJsonDataKey() : this.jsonDataKey;
+                requestCall.getOkHttpRequest().getJsonDataKey() : config.jsonDataKey;
 
         requestCall.getCall().enqueue(new okhttp3.Callback() {
             @Override
@@ -177,7 +196,9 @@ public class OkHttpPan {
         });
     }
 
-    // 执行 download 请求
+    /**
+     * 执行 download 请求
+     */
     public void execute(BaseRequestCall requestCall, DownloadCallback callback) {
         if (callback == null) {
             callback = DownloadCallback.DEFAULT;
@@ -192,6 +213,8 @@ public class OkHttpPan {
             @Override
             public void onFailure(Call call, IOException e) {
                 final HttpError error = createHttpError(call, e);
+                Logger.e("[Http]" + OkHttpPan.class.getName() + "Error code = " +
+                        error.getCode() + ", Error msg : " + error.getMessage());
                 // 发送失败回调消息
                 respHandler.post(new Runnable() {
                     @Override
@@ -249,7 +272,9 @@ public class OkHttpPan {
         return new HttpError(code, msg);
     }
 
-    // 获取数据失败
+    /**
+     * 获取服务器数据 失败
+     */
     private void sendDefaultFailResultCallback(final HttpError error, final BaseCallback callback) {
         if (callback == null) {
             return;
@@ -263,104 +288,85 @@ public class OkHttpPan {
         });
     }
 
-    // 获取数据成功
+    /**
+     * 获取服务端数据 成功
+     */
     private <T> void sendDefaultSuccessResultCallback(Response response, Class<T> clazz, final BaseCallback callback,
                                                       final String jsonStatusKey, final String jsonStatusSuccessValue,
                                                       final String jsonDataKey, final String requestMethod) {
+        final Result result = new Result();
+
+        // http请求失败
+        if (!response.isSuccessful()) {
+            result.success = false;
+            result.error = new HttpError(response.code(), response.message());
+            // 返回数据
+            sendResultData(result, requestMethod, callback);
+            return;
+        }
+
+        // http请求成功
         try {
-            final Result result = new Result();
-            // http请求失败
-            if (!response.isSuccessful()) {
-                String msg = response.message();
-                int code = response.code();
-                if (BuildConfig.DEBUG) {
-                    Logger.d(code + ", " + msg);
-                }
-                result.success = false;
-                result.error = new HttpError(code, msg);
-            } else { // http请求成功
-                String respStr = response.body().string();
-                Logger.d("respStr = " + respStr);
-                response.body().close();
-                // log 打印
-                if (BuildConfig.DEBUG) {
-                    int maxLogChars = 4096 / 3 - 1;
-                    for (int i = 0; i < respStr.length(); i += maxLogChars) {
-                        int end = i + maxLogChars;
-                        if (end > respStr.length()) end = respStr.length();
-                        Logger.d(respStr.substring(i, end).trim());
+            String respStr = response.body().string();
+            response.body().close();
+
+            // debug 模式下 json 打印
+            if (isDebug) {
+                int maxLogChars = 4096 / 3 - 1;
+                for (int i = 0; i < respStr.length(); i += maxLogChars) {
+                    int end = i + maxLogChars;
+                    if (end > respStr.length()) {
+                        end = respStr.length();
                     }
-                }
-                // 没有配置Json状态信息时，直接解析 或者 直接返回 json
-                JSONObject json = JSONObject.parseObject(respStr);
-                if (json != null) {
-                    if (!TextUtils.isEmpty(jsonStatusKey) && json.containsKey(jsonStatusKey)) {
-                        Object status = json.get(jsonStatusKey);
-                        // 返回数据正常
-                        if (jsonStatusSuccessValue.equals(String.valueOf(status))) {
-                            // 有获取数据
-                            if (json.containsKey(jsonDataKey)) {
-                                result.success = true;
-                                result.data = parseJson(json.get(jsonDataKey), clazz);
-                            } else { // 无数据
-                                result.success = false;
-                                result.error = new HttpError(HttpError.ERR_CODE_DATA_EMPTY);
-                            }
-                        } else if ("-100".equals(String.valueOf(status))) {
-                            result.success = false;
-                            result.error = new HttpError(Integer.parseInt(String.valueOf(status)),
-                                    String.valueOf(json.get("failed")));
-                        } else if (String.valueOf(HttpError.ERR_CODE_LOGING_TIMEOUT).equals(String.valueOf(status))) { // 登录超时
-                            result.success = false;
-                            result.error = new HttpError(HttpError.ERR_CODE_LOGING_TIMEOUT);
-                        } else { // 操作失败
-                            result.success = false;
-                            result.error = new HttpError(json.containsKey("failed") ?
-                                    HttpError.ERR_CODE_FAILED : HttpError.ERR_CODE_UNKNOWN,
-                                    json.containsKey("failed") ? String.valueOf(json.get("failed")) :
-                                            HttpError.ERR_CODE_UNKNOWN_MSG);
-                        }
-                    } else {
-                        result.success = true;
-                        result.data = parseJson(json.clone(), clazz);
-                        if (null == result.data) {
-                            // 无数据
-                            result.success = false;
-                            result.error = new HttpError(HttpError.ERR_CODE_DATA_EMPTY);
-                        }
-                    }
-                } else { // 无数据
-                    result.success = false;
-                    result.error = new HttpError(HttpError.ERR_CODE_DATA_EMPTY);
+                    Logger.d("respStr = " + respStr.substring(i, end).trim());
                 }
             }
-            // 返回数据
-            respHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (callback != null) {
-                        if (result.success) {
-                            if (HttpConstants.Method.UPLOAD.equals(requestMethod) && callback instanceof UploadCallback) {
-                                ((UploadCallback) callback).onComplete(result.data);
-                            } else if (callback instanceof HttpCallback) {
-                                ((HttpCallback) callback).onSuccess(result.data);
-                            }
-                        } else {
-                            callback.onFail(result.error);
-                        }
-                    }
+
+            // 没有配置Json状态信息时，直接解析 或者 直接返回 json
+            JSONObject jsonObject = JSONObject.parseObject(respStr);
+            if (jsonObject == null) {
+                result.success = false;
+                result.error = new HttpError(HttpError.ERR_CODE_DATA_EMPTY);
+                // 返回数据
+                sendResultData(result, requestMethod, callback);
+                return;
+            }
+
+            if (!TextUtils.isEmpty(jsonStatusKey) && jsonObject.containsKey(jsonStatusKey)) {
+                Object status = jsonObject.get(jsonStatusKey);
+                // 返回数据正常
+                if (jsonStatusSuccessValue.equals(String.valueOf(status))) {
+                    // 有获取数据
+                    parseJson(result, jsonObject, jsonDataKey, clazz);
+                } else {
+                    // 操作失败
+                    result.success = false;
+                    result.error = new HttpError(jsonObject.containsKey(config.jsonFailedKey) ?
+                            HttpError.ERR_CODE_FAILED : HttpError.ERR_CODE_UNKNOWN,
+                            jsonObject.containsKey(config.jsonFailedKey) ? String.valueOf(jsonObject.get(config.jsonFailedKey)) :
+                                    HttpError.ERR_CODE_UNKNOWN_MSG);
                 }
-            });
+            } else {
+                // 未配置 jsonStatusKey 时
+                parseJson(result, jsonObject, jsonDataKey, clazz);
+            }
+
+            // 返回数据
+            sendResultData(result, requestMethod, callback);
+
         } catch (Exception e) {
             e.printStackTrace();
-            Logger.e("[Http] - " + OkHttpPan.class.getName() + " code = " +
-                    response.code() + ", response msg : " + response.message());
+            Logger.e("[Http] - " + OkHttpPan.class.getName() + " code = " + response.code()
+                    + ", response msg : " + response.message());
+            // 返回失败信息
             sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_UNKNOWN,
                     e.getClass().getName() + " : " + e.getMessage()), callback);
         }
     }
 
-    // 下载完成 数据处理
+    /**
+     * 下载完成 数据处理
+     */
     private void sendDownloadSuccessResultCallback(Response response, String destFileDir, String destFileName,
                                                    final DownloadCallback callback) {
         try {
@@ -369,9 +375,7 @@ public class OkHttpPan {
             if (!response.isSuccessful()) {
                 String msg = response.message();
                 int code = response.code();
-                if (BuildConfig.DEBUG) {
-                    Logger.d(code + ", " + msg);
-                }
+                Logger.d(code + ", " + msg);
                 result.success = false;
                 result.error = new HttpError(code, msg);
             } else { // http请求成功 存储文件
@@ -397,7 +401,7 @@ public class OkHttpPan {
                             @Override
                             public void run() {
                                 callback.inProgress(finalCurrent * 1.0f / total, finalCurrent, total);
-                                Logger.d("[SHPER] current: " + finalCurrent + " total:" + total);
+                                Logger.d("current: " + finalCurrent + " total:" + total);
                             }
                         });
                     }
@@ -440,6 +444,64 @@ public class OkHttpPan {
         }
     }
 
+    /**
+     * 向前台发送数据
+     */
+    private void sendResultData(final Result result, final String requestMethod, final BaseCallback callback) {
+
+        if (null == callback) {
+            return;
+        }
+
+        respHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (result.success) {
+                    Logger.i("[Http] - 数据获取成功");
+                    if (HttpConstants.Method.UPLOAD.equals(requestMethod) && callback instanceof UploadCallback) {
+                        ((UploadCallback) callback).onComplete(result.data);
+                    } else if (callback instanceof HttpCallback) {
+                        ((HttpCallback) callback).onSuccess(result.data);
+                    }
+                } else {
+                    Logger.e("[Http] - " + OkHttpPan.class.getName() + " code = " +
+                            result.error.getCode() + ", response msg : " + result.error.getMessage());
+                    callback.onFail(result.error);
+                }
+            }
+        });
+    }
+
+    /**
+     * 解析 JSON
+     */
+    private <T> void parseJson(Result result, JSONObject jsonObject, String jsonDataKey, Class<T> clazz) {
+        if (null == jsonObject) {
+            result.success = false;
+            result.error = new HttpError(HttpError.ERR_CODE_DATA_EMPTY);
+            return;
+        }
+
+        // 未配置 jsonDataKey 时 直接解析
+        if (TextUtils.isEmpty(jsonDataKey)) {
+            result.success = true;
+            result.data = parseJson(jsonObject, clazz);
+            return;
+        }
+
+        // 配置了 jsonDataKey 进行解析
+        if (jsonObject.containsKey(jsonDataKey)) {
+            result.success = true;
+            result.data = parseJson(jsonObject.get(jsonDataKey), clazz);
+        } else { // 无数据
+            result.success = false;
+            result.error = new HttpError(HttpError.ERR_CODE_DATA_EMPTY);
+        }
+    }
+
+    /**
+     * 解析 JSON
+     */
     private <T> Object parseJson(Object data, Class<T> clazz) {
         // 如clazz为null，不需要解析，由调用方自行处理
         if (data != null && clazz != null) {
@@ -454,6 +516,9 @@ public class OkHttpPan {
         return data;
     }
 
+    /**
+     * 保存返回信息
+     */
     private static class Result {
         boolean success;
         HttpError error;

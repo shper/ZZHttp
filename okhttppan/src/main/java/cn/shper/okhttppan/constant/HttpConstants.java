@@ -22,7 +22,7 @@ public interface HttpConstants {
     }
 
     interface Method {
-        String GET = "GHT";
+        String GET = "GET";
         String POST = "POST";
         String DOWNLOAD = "DOWNLOAD";
         String UPLOAD = "UPLOAD";

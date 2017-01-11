@@ -28,15 +28,17 @@ task makeJar(type: Copy) {
     from('build/intermediates/bundles/release/')
     into('build/outputs/')
     include('classes.jar')
-    rename ('classes.jar', 'okhttppan-1.0.0.jar')
+    rename('classes.jar', 'okhttppan-1.0.0.jar')
 }
 
 makeJar.dependsOn(clearJar, build)
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:appcompat-v7:${supportV7}"
-    compile "com.squareup.okhttp3:okhttp:${okhttp}"
-    compile "com.alibaba:fastjson:${fastjson}"
+
+    provided "com.squareup.okhttp3:okhttp:${okhttp}"
+    provided "com.alibaba:fastjson:${fastjson}"
+
     testCompile 'junit:junit:4.12'
 }
