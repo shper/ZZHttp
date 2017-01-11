@@ -21,6 +21,8 @@ target
 # Local configuration file (sdk path, etc)
 local.properties
 /local.properties
+gradle.properties
+/gradle.properties
 
 # Eclipse project files
 .classpath
@@ -43,7 +45,3 @@ proguard/
 .DS_Store
 
 bs_ks.png
-
-./gradle.properties
-
-
