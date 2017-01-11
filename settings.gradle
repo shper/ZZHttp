@@ -1,1 +1,1 @@
-include ':okhttppan'
+include ':okhttppan', ':okhttppandemo'

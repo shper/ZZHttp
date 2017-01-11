@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">OkHttpPanDemo</string>
+
+    <string name="txt_get_weather">获取天气</string>
+</resources>
