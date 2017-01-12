@@ -42,7 +42,7 @@ import okhttp3.Response;
  * <p>
  * <p>
  * 使用列子：
- * OkHttpPan.post() or .get() or .download() or .upload()   // [必选] post 、get 、download 、upload 请求
+ * OkHttpPan.post() or .get() or .download() or .upload()        // [必选] post 、get 、download 、upload 请求
  * .url(<$URL>)                                                  // [必选] 请求 的 URL
  * .params("XXO", xxo)                                           // [可选] 请求参数（可多个）
  * .files("Key", Map<String, File> files)                        // [可选] POST 专用，使用此标签 上传文件
