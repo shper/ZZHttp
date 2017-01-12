@@ -16,7 +16,7 @@ public abstract class BaseRequest<T extends BaseRequest> {
 
     protected String url;
     protected Object tag;
-    protected HashMap<String, Object> params;
+    protected HashMap<String, String> params;
     protected HashMap<String, String> headers;
     protected String requestMethod;
 
@@ -49,7 +49,7 @@ public abstract class BaseRequest<T extends BaseRequest> {
         return (T) this;
     }
 
-    public T params(HashMap<String, Object> params) {
+    public T params(HashMap<String, String> params) {
         this.params = params;
         return (T) this;
     }

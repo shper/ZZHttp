@@ -8,7 +8,7 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        versionCode 2017011101
+        versionCode 2017011201
         versionName "1.2.0"
     }
 
@@ -28,7 +28,7 @@ task makeJar(type: Copy) {
     from('build/intermediates/bundles/release/')
     into('build/outputs/')
     include('classes.jar')
-    rename('classes.jar', 'okhttppan-1.0.0.jar')
+    rename('classes.jar', 'okhttppan-1.2.0-2017011201.jar')
 }
 
 makeJar.dependsOn(clearJar, build)

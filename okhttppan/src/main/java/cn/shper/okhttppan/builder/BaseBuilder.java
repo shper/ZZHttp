@@ -20,7 +20,7 @@ public abstract class BaseBuilder<T extends BaseBuilder> {
 
     protected String url;
     protected HashMap<String, String> headers;
-    protected HashMap<String, Object> params;
+    protected HashMap<String, String> params;
     protected Object tag;
 
     protected String jsonStatusKey;
@@ -31,7 +31,7 @@ public abstract class BaseBuilder<T extends BaseBuilder> {
     protected int readTimeout;
     protected int writeTimeout;
 
-    public T params(HashMap<String, Object> params) {
+    public T params(HashMap<String, String> params) {
         if (null == this.params) {
             this.params = params;
         } else {
@@ -40,7 +40,7 @@ public abstract class BaseBuilder<T extends BaseBuilder> {
         return (T) this;
     }
 
-    public T params(String key, Object val) {
+    public T params(String key, String val) {
         if (null == params) {
             params = new HashMap<>();
         }
@@ -133,14 +133,14 @@ public abstract class BaseBuilder<T extends BaseBuilder> {
     /**
      * 拼接参数
      */
-    String appendParams(String url, HashMap<String, Object> params) {
+    String appendParams(String url, HashMap<String, String> params) {
         if (url == null || params == null || params.isEmpty()) {
             return url;
         }
         Uri.Builder builder = Uri.parse(url).buildUpon();
         Set<String> keys = params.keySet();
         for (String key : keys) {
-            builder.appendQueryParameter(key, String.valueOf(params.get(key)));
+            builder.appendQueryParameter(key, params.get(key));
         }
         return builder.build().toString();
     }
