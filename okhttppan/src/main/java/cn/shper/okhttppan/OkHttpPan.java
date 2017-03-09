@@ -66,8 +66,8 @@ public class OkHttpPan {
     // 配置信息，包含 json 格式定义、timeout 等
     private OkHttpPanConfig config;
 
+    private volatile static OkHttpPan instance;
     private static OkHttpClient defaultClient;
-    private static OkHttpPan instance;
     private static Handler respHandler;
 
     private OkHttpPan() {
@@ -85,11 +85,19 @@ public class OkHttpPan {
     }
 
     public static void initialization(OkHttpPanConfig config) {
-        // 设置超时时间
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .connectTimeout(config.connectTimeout, TimeUnit.SECONDS)
-                .readTimeout(config.readTimeout, TimeUnit.SECONDS)
-                .writeTimeout(config.writeTimeout, TimeUnit.SECONDS);
+
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        if (null != config) {
+            // 设置超时时间
+            builder.connectTimeout(config.connectTimeout, TimeUnit.SECONDS)
+                    .readTimeout(config.readTimeout, TimeUnit.SECONDS)
+                    .writeTimeout(config.writeTimeout, TimeUnit.SECONDS);
+
+            if (null != config.sslParams) {
+                builder.sslSocketFactory(config.sslParams.sSLSocketFactory, config.sslParams.trustManager);
+            }
+        }
+
         defaultClient = builder.build();
         // 初始化Handler
         respHandler = new Handler(Looper.getMainLooper());
@@ -176,22 +184,22 @@ public class OkHttpPan {
 
             @Override
             public void onResponse(final Call call, final Response response) {
-                try {
-                    if (call.isCanceled()) {
-                        Logger.e(OkHttpPan.class.getName() + "请求被取消");
-                        // 发送失败回调消息
-                        sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_CANCELED), callback);
-                        return;
-                    }
-                    // 发送成功回调消息
-                    sendDefaultSuccessResultCallback(response, clazz, callback, jsonStatusKey,
-                            jsonStatusSuccessValue, jsonDataKey, requestMethod);
-                } catch (Exception e) {
-                    Logger.e(OkHttpPan.class.getName() + "http code = " + response.code() +
-                            ", response msg : " + response.message());
+                // try {
+                if (call.isCanceled()) {
+                    Logger.e(OkHttpPan.class.getName() + "请求被取消");
                     // 发送失败回调消息
-                    sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_UNKNOWN), callback);
+                    sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_CANCELED), callback);
+                    return;
                 }
+                // 发送成功回调消息
+                sendDefaultSuccessResultCallback(response, clazz, callback, jsonStatusKey,
+                        jsonStatusSuccessValue, jsonDataKey, requestMethod);
+//                } catch (Exception e) {
+//                    Logger.e(OkHttpPan.class.getName() + "http code = " + response.code() +
+//                            ", response msg : " + response.message());
+//                    // 发送失败回调消息
+//                    sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_UNKNOWN), callback);
+//                }
             }
         });
     }
