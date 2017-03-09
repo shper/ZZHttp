@@ -1,5 +1,8 @@
 package cn.shper.okhttppan.entity;
 
+import cn.shper.okhttppan.constant.HttpConstants;
+import cn.shper.okhttppan.utils.HttpsCertUtils;
+
 /**
  * Author: Shper
  * Description: OkHttpPan 配置类
@@ -16,11 +19,13 @@ public class OkHttpPanConfig {
     // 返回的 Json 失败时的标识Key
     public String jsonFailedKey;
     // 网络连接超时时间
-    public int connectTimeout;
+    public int connectTimeout = HttpConstants.Timeout.DEFAULT_CONNECT;
     // 网络读取超时时间
-    public int readTimeout;
+    public int readTimeout = HttpConstants.Timeout.DEFAULT_READ;
     // 网络写超时时间
-    public int writeTimeout;
+    public int writeTimeout = HttpConstants.Timeout.DEFAULT_WRITE;
+    // HTTPS SSL 证书
+    public HttpsCertUtils.SSLParams sslParams;
 
     public static class Builder {
 
@@ -45,7 +50,7 @@ public class OkHttpPanConfig {
             return this;
         }
 
-        public Builder jsonFailedKey(String jsonFailedKey){
+        public Builder jsonFailedKey(String jsonFailedKey) {
             config.jsonFailedKey = jsonFailedKey;
             return this;
         }
@@ -62,6 +67,11 @@ public class OkHttpPanConfig {
 
         public Builder writeTimeout(int writeTimeout) {
             config.writeTimeout = writeTimeout;
+            return this;
+        }
+
+        public Builder sslParams(HttpsCertUtils.SSLParams sslParams) {
+            config.sslParams = sslParams;
             return this;
         }
 

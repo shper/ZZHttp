@@ -1,5 +1,6 @@
-package cn.shper.okhttppan.request;
+package cn.shper.okhttppan.requestcall;
 
+import cn.shper.okhttppan.request.BaseRequest;
 import okhttp3.Call;
 import okhttp3.Request;
 

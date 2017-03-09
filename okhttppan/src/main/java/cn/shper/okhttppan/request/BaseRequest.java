@@ -1,9 +1,18 @@
 package cn.shper.okhttppan.request;
 
+import android.net.Uri;
+import android.text.TextUtils;
+
 import java.util.HashMap;
+import java.util.Set;
 
 import cn.shper.okhttppan.callback.BaseCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
+import cn.shper.okhttppan.requestcall.BaseRequestCall;
+import cn.shper.okhttppan.requestcall.DefaultRequestCall;
+import cn.shper.okhttppan.requestcall.DownloadRequestCall;
+import cn.shper.okhttppan.requestcall.UploadRequestCall;
+import cn.shper.okhttppan.utils.Logger;
 import okhttp3.Headers;
 import okhttp3.Request;
 
@@ -12,13 +21,14 @@ import okhttp3.Request;
  * Description 基础请求类
  * Version 0.1 16-6-7 C 创建
  */
-public abstract class BaseRequest<T extends BaseRequest> {
+public abstract class BaseRequest<T extends BaseRequest,R extends BaseRequestCall> {
+
+    protected String requestMethod;
 
     protected String url;
     protected Object tag;
     protected HashMap<String, String> params;
     protected HashMap<String, String> headers;
-    protected String requestMethod;
 
     protected String jsonStatusKey;
     protected String jsonStatusSuccessValue;
@@ -104,20 +114,41 @@ public abstract class BaseRequest<T extends BaseRequest> {
         return (T) this;
     }
 
-    public BaseRequestCall build() {
+    public R build() {
+        if (TextUtils.isEmpty(url)) {
+            throw new NullPointerException("url can't be empty!!!");
+        }
+
+        if (HttpConstants.Method.DOWNLOAD.equals(requestMethod)) {
+            if (TextUtils.isEmpty(savePath)) {
+                throw new NullPointerException("savePath can't be empty!!!");
+            }
+            if (TextUtils.isEmpty(saveFileName)) {
+                throw new NullPointerException("saveFileName can't be empty!!!");
+            }
+        }
+
+        // 打印日志
+        printLog(requestMethod);
+        if (params != null) {
+            url = appendParams(url, params);
+            // 打印拼接后的 URL
+            Logger.d("applyUrl: " + url);
+        }
+
         builder.url(url).tag(tag);
         appendHeaders();
 
         switch (requestMethod) {
             case HttpConstants.Method.GET:
             case HttpConstants.Method.POST:
-                return new DefaultRequestCall(this);
+                return (R) new DefaultRequestCall(this);
             case HttpConstants.Method.DOWNLOAD:
-                return new DownloadRequestCall(this);
+                return (R) new DownloadRequestCall(this);
             case HttpConstants.Method.UPLOAD:
-                return new UploadRequestCall(this);
+                return (R) new UploadRequestCall(this);
         }
-        return new DefaultRequestCall(this);
+        return (R) new DefaultRequestCall(this);
     }
 
     /**
@@ -135,10 +166,45 @@ public abstract class BaseRequest<T extends BaseRequest> {
     }
 
     /**
+     * 拼接参数
+     */
+    String appendParams(String url, HashMap<String, String> params) {
+        if (TextUtils.isEmpty(url) || params == null || params.isEmpty()) {
+            return url;
+        }
+        Uri.Builder builder = Uri.parse(url).buildUpon();
+        Set<String> keys = params.keySet();
+        for (String key : keys) {
+            builder.appendQueryParameter(key, params.get(key));
+        }
+        return builder.build().toString();
+    }
+
+    // debug 的时候打印日志
+    void printLog(String tag) {
+        Logger.i(tag + " - url: " + url);
+        if (params != null && params.size() > 0) {
+            StringBuffer buffer = new StringBuffer();
+            for (String key : params.keySet()) {
+                buffer.append(key + " : " + params.get(key) + ", ");
+            }
+            Logger.i(tag + " - params: " + buffer.toString());
+        }
+        if (headers != null && headers.size() > 0) {
+            StringBuffer buffer = new StringBuffer();
+            for (String key : headers.keySet()) {
+                buffer.append(key + " : " + headers.get(key) + ", ");
+            }
+            Logger.i(tag + " - headers: " + buffer.toString());
+        }
+    }
+
+    /**
      * 创建 Request
+     *
      * @param callback
      */
-    abstract Request buildRequest(BaseCallback callback);
+    public abstract Request getRequest(BaseCallback callback);
 
     public String getJsonStatusKey() {
         return jsonStatusKey;

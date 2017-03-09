@@ -1,9 +1,10 @@
-package cn.shper.okhttppan.request;
+package cn.shper.okhttppan.requestcall;
 
 import java.util.concurrent.TimeUnit;
 
 import cn.shper.okhttppan.OkHttpPan;
-import cn.shper.okhttppan.callback.UploadCallback;
+import cn.shper.okhttppan.callback.DownloadCallback;
+import cn.shper.okhttppan.request.BaseRequest;
 import cn.shper.okhttppan.utils.Logger;
 import okhttp3.OkHttpClient;
 
@@ -12,36 +13,36 @@ import okhttp3.OkHttpClient;
  * Description TODO
  * Version 0.1 16-6-12 C 创建
  */
-public class UploadRequestCall extends BaseRequestCall {
+public class DownloadRequestCall extends BaseRequestCall {
 
-    private OkHttpClient uploadClient;
+    private OkHttpClient downloadClient;
 
-    public UploadRequestCall(BaseRequest request) {
+    public DownloadRequestCall(BaseRequest request) {
         super(request);
     }
 
-    private void buildCall(UploadCallback callback) {
+    private void buildCall() {
         Logger.d("[TimeoutConfig - " + baseRequest.getRequestMethod() + "]" +
                 " ConnectTimeout: " + baseRequest.getConnectTimeout() +
                 " ReadTimeout: " + baseRequest.getReadTimeout() +
                 " WriteTimeout: " + baseRequest.getWriteTimeout());
-        request = baseRequest.buildRequest(callback);
-        uploadClient = OkHttpPan.getInstance().getClient()
+        request = baseRequest.getRequest(null);
+        downloadClient = OkHttpPan.getInstance().getClient()
                 .newBuilder()
                 .connectTimeout(baseRequest.getConnectTimeout(), TimeUnit.SECONDS)
                 .readTimeout(baseRequest.getReadTimeout(), TimeUnit.SECONDS)
                 .writeTimeout(baseRequest.getWriteTimeout(), TimeUnit.SECONDS)
                 .build();
-        call = uploadClient.newCall(request);
+        call = downloadClient.newCall(request);
     }
 
-    public <T> void execute(Class<T> clazz, UploadCallback callback) {
-        buildCall(callback);
+    public void execute(DownloadCallback callback) {
+        buildCall();
         if (callback != null) {
             callback.onStart(request);
         }
 
-        OkHttpPan.getInstance().execute(this, clazz, callback);
+        OkHttpPan.getInstance().execute(this, callback);
     }
 
 }

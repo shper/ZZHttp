@@ -1,10 +1,11 @@
-package cn.shper.okhttppan.request;
+package cn.shper.okhttppan.requestcall;
 
 import java.util.concurrent.TimeUnit;
 
 import cn.shper.okhttppan.OkHttpPan;
 import cn.shper.okhttppan.callback.HttpCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
+import cn.shper.okhttppan.request.BaseRequest;
 import cn.shper.okhttppan.utils.Logger;
 import okhttp3.OkHttpClient;
 
@@ -20,7 +21,7 @@ public class DefaultRequestCall extends BaseRequestCall {
     }
 
     private void buildCall() {
-        request = baseRequest.buildRequest(null);
+        request = baseRequest.getRequest(null);
         // 如果自定义了 Timeout 设置新的 Client
         if (baseRequest.getConnectTimeout() > 0 || baseRequest.getReadTimeout() > 0 || baseRequest.getWriteTimeout() > 0) {
             OkHttpClient newClient = OkHttpPan.getInstance().getClient()

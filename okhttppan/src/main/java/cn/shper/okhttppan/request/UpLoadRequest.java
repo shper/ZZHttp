@@ -1,13 +1,17 @@
 package cn.shper.okhttppan.request;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 
 import cn.shper.okhttppan.callback.BaseCallback;
+import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.entity.FileInput;
+import cn.shper.okhttppan.requestcall.UploadRequestCall;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -20,17 +24,32 @@ import okhttp3.RequestBody;
  * Description Post 请求类
  * Version 0.1 16-6-8 C 创建
  */
-public class UpLoadRequest extends BaseRequest<UpLoadRequest> {
+public class UpLoadRequest extends BaseRequest<UpLoadRequest, UploadRequestCall> {
 
     private List<FileInput> files;
 
-    Request buildRequest(BaseCallback callback) {
-        return builder.post(new UploadRequestBody(buildRequestBody(), callback)).build();
+    public UpLoadRequest() {
+        requestMethod = HttpConstants.Method.UPLOAD;
+        connectTimeout = HttpConstants.Timeout.UPLOAD_CONNECT;
+        readTimeout = HttpConstants.Timeout.UPLOAD_READ;
+        writeTimeout = HttpConstants.Timeout.UPLOAD_WRITE;
     }
 
-    public UpLoadRequest files(List<FileInput> files) {
-        this.files = files;
+    public UpLoadRequest files(String key, Map<String, File> files) {
+        for (String filename : files.keySet()) {
+            this.files.add(new FileInput(key, filename, files.get(filename)));
+        }
         return this;
+    }
+
+    public UpLoadRequest addFile(String name, String filename, File file) {
+        files.add(new FileInput(name, filename, file));
+        return this;
+    }
+
+    @Override
+    public Request getRequest(BaseCallback callback) {
+        return builder.post(new UploadRequestBody(buildRequestBody(), callback)).build();
     }
 
     private RequestBody buildRequestBody() {

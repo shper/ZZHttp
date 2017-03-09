@@ -1,13 +1,17 @@
 package cn.shper.okhttppan.request;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 
 import cn.shper.okhttppan.callback.BaseCallback;
+import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.entity.FileInput;
+import cn.shper.okhttppan.requestcall.DefaultRequestCall;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -20,17 +24,28 @@ import okhttp3.RequestBody;
  * Description Post 请求类
  * Version 0.1 16-6-8 C 创建
  */
-public class PostRequest extends BaseRequest<PostRequest> {
+public class PostRequest extends BaseRequest<PostRequest, DefaultRequestCall> {
 
     protected List<FileInput> files;
 
+    public PostRequest() {
+        requestMethod = HttpConstants.Method.POST;
+    }
+
     @Override
-    Request buildRequest(BaseCallback callback) {
+    public Request getRequest(BaseCallback callback) {
         return builder.post(buildRequestBody()).build();
     }
 
-    public PostRequest files(List<FileInput> files){
-        this.files = files;
+    public PostRequest files(String key, Map<String, File> files) {
+        for (String filename : files.keySet()) {
+            this.files.add(new FileInput(key, filename, files.get(filename)));
+        }
+        return this;
+    }
+
+    public PostRequest addFile(String name, String filename, File file) {
+        files.add(new FileInput(name, filename, file));
         return this;
     }
 

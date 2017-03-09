@@ -18,10 +18,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
-import cn.shper.okhttppan.builder.DownloadBuilder;
-import cn.shper.okhttppan.builder.GetBuilder;
-import cn.shper.okhttppan.builder.PostBuilder;
-import cn.shper.okhttppan.builder.UploadBuilder;
 import cn.shper.okhttppan.callback.BaseCallback;
 import cn.shper.okhttppan.callback.DownloadCallback;
 import cn.shper.okhttppan.callback.HttpCallback;
@@ -29,7 +25,12 @@ import cn.shper.okhttppan.callback.UploadCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.constant.HttpError;
 import cn.shper.okhttppan.entity.OkHttpPanConfig;
-import cn.shper.okhttppan.request.BaseRequestCall;
+import cn.shper.okhttppan.request.DownloadRequest;
+import cn.shper.okhttppan.request.GetRequest;
+import cn.shper.okhttppan.request.PostRequest;
+import cn.shper.okhttppan.request.UpLoadRequest;
+import cn.shper.okhttppan.requestcall.BaseRequestCall;
+import cn.shper.okhttppan.utils.HttpsCertUtils;
 import cn.shper.okhttppan.utils.Logger;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -144,20 +145,20 @@ public class OkHttpPan {
         return respHandler;
     }
 
-    public static GetBuilder get() {
-        return new GetBuilder(HttpConstants.Method.GET);
+    public static GetRequest get() {
+        return new GetRequest();
     }
 
-    public static PostBuilder post() {
-        return new PostBuilder(HttpConstants.Method.POST);
+    public static PostRequest post() {
+        return new PostRequest();
     }
 
-    public static DownloadBuilder download() {
-        return new DownloadBuilder(HttpConstants.Method.DOWNLOAD);
+    public static DownloadRequest download() {
+        return new DownloadRequest();
     }
 
-    public static UploadBuilder upload() {
-        return new UploadBuilder(HttpConstants.Method.UPLOAD);
+    public static UpLoadRequest upload() {
+        return new UpLoadRequest();
     }
 
     /**
