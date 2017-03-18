@@ -1,7 +1,10 @@
 package cn.shper.okhttppan.request;
 
 import android.net.Uri;
+import android.os.Parcelable;
 import android.text.TextUtils;
+
+import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -21,7 +24,7 @@ import okhttp3.Request;
  * Description 基础请求类
  * Version 0.1 16-6-7 C 创建
  */
-public abstract class BaseRequest<T extends BaseRequest,R extends BaseRequestCall> {
+public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCall> {
 
     protected String requestMethod;
 
@@ -45,36 +48,98 @@ public abstract class BaseRequest<T extends BaseRequest,R extends BaseRequestCal
     protected Request.Builder builder = new Request.Builder();
 
     public T requestMethod(String requestMethod) {
+        if (TextUtils.isEmpty(requestMethod)) {
+            return (T) this;
+        }
+
         this.requestMethod = requestMethod;
         return (T) this;
     }
 
     public T url(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return (T) this;
+        }
+
         this.url = url;
         return (T) this;
     }
 
+    public T header(String key, String value) {
+        if (TextUtils.isEmpty(key) || TextUtils.isEmpty(value)) {
+            return (T) this;
+        }
+
+        if (null == this.headers) {
+            this.headers = new HashMap<>();
+        }
+
+        this.headers.put(key, value);
+        return (T) this;
+    }
+
     public T headers(HashMap<String, String> headers) {
-        this.headers = headers;
+        if (null == headers || headers.isEmpty()) {
+            return (T) this;
+        }
+
+        if (null == this.headers) {
+            this.headers = new HashMap<>();
+        }
+
+        this.headers.putAll(headers);
+        return (T) this;
+    }
+
+    public T param(String key, String value) {
+        if (TextUtils.isEmpty(key) || TextUtils.isEmpty(value)) {
+            return (T) this;
+        }
+
+        if (null == this.params) {
+            this.params = new HashMap<>();
+        }
+
+        this.params.put(key, value);
         return (T) this;
     }
 
     public T params(HashMap<String, String> params) {
-        this.params = params;
+        if (null == params || params.isEmpty()) {
+            return (T) this;
+        }
+
+        if (null == this.params) {
+            this.params = new HashMap<>();
+        }
+
+        this.params.putAll(params);
         return (T) this;
     }
 
     public T jsonStatusKey(String jsonStatusKey) {
+        if (TextUtils.isEmpty(jsonStatusKey)) {
+            return (T) this;
+        }
+
         this.jsonStatusKey = jsonStatusKey;
         return (T) this;
     }
 
     public T jsonStatusSuccessValue(String jsonStatusSuccessValue) {
+        if (TextUtils.isEmpty(jsonStatusSuccessValue)) {
+            return (T) this;
+        }
+
         this.jsonStatusSuccessValue = jsonStatusSuccessValue;
         return (T) this;
     }
 
     public T jsonDataKey(String jsonDataKey) {
+        if (TextUtils.isEmpty(jsonDataKey)) {
+            return (T) this;
+        }
+
         this.jsonDataKey = jsonDataKey;
         return (T) this;
     }
@@ -85,31 +150,55 @@ public abstract class BaseRequest<T extends BaseRequest,R extends BaseRequestCal
     }
 
     public T tag(Object tag) {
+        if (null == tag) {
+            return (T) this;
+        }
+
         this.tag = tag;
         return (T) this;
     }
 
     public T savePath(String savePath) {
+        if (TextUtils.isEmpty(savePath)) {
+            return (T) this;
+        }
+
         this.savePath = savePath;
         return (T) this;
     }
 
     public T saveFileName(String saveFileName) {
+        if (TextUtils.isEmpty(saveFileName)) {
+            return (T) this;
+        }
+
         this.saveFileName = saveFileName;
         return (T) this;
     }
 
     public T connectTimeout(int connectTimeout) {
+        if (connectTimeout < 1) {
+            return (T) this;
+        }
+
         this.connectTimeout = connectTimeout;
         return (T) this;
     }
 
     public T readTimeout(int readTimeout) {
+        if (readTimeout < 1) {
+            return (T) this;
+        }
+
         this.readTimeout = readTimeout;
         return (T) this;
     }
 
     public T writeTimeout(int writeTimeout) {
+        if (writeTimeout < 1) {
+            return (T) this;
+        }
+
         this.writeTimeout = writeTimeout;
         return (T) this;
     }
