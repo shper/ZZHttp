@@ -1,16 +1,14 @@
 package cn.shper.okhttppan.request;
 
 import android.net.Uri;
-import android.os.Parcelable;
 import android.text.TextUtils;
-
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Set;
 
 import cn.shper.okhttppan.callback.BaseCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
+import cn.shper.okhttppan.exception.HttpRequestBuildException;
 import cn.shper.okhttppan.requestcall.BaseRequestCall;
 import cn.shper.okhttppan.requestcall.DefaultRequestCall;
 import cn.shper.okhttppan.requestcall.DownloadRequestCall;
@@ -58,7 +56,7 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
 
     public T url(String url) {
         if (TextUtils.isEmpty(url)) {
-            return (T) this;
+            throw new HttpRequestBuildException("The URL can't be empty!!!");
         }
 
         this.url = url;
@@ -119,7 +117,7 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
 
     public T jsonStatusKey(String jsonStatusKey) {
         if (TextUtils.isEmpty(jsonStatusKey)) {
-            return (T) this;
+            throw new HttpRequestBuildException("The JsonStatusKey can't be empty!!!");
         }
 
         this.jsonStatusKey = jsonStatusKey;
@@ -128,7 +126,7 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
 
     public T jsonStatusSuccessValue(String jsonStatusSuccessValue) {
         if (TextUtils.isEmpty(jsonStatusSuccessValue)) {
-            return (T) this;
+            throw new HttpRequestBuildException("The JsonStatusSuccessValue can't be empty!!!");
         }
 
         this.jsonStatusSuccessValue = jsonStatusSuccessValue;
@@ -137,7 +135,7 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
 
     public T jsonDataKey(String jsonDataKey) {
         if (TextUtils.isEmpty(jsonDataKey)) {
-            return (T) this;
+            throw new HttpRequestBuildException("The JsonDataKey can't be empty!!!");
         }
 
         this.jsonDataKey = jsonDataKey;
@@ -151,28 +149,10 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
 
     public T tag(Object tag) {
         if (null == tag) {
-            return (T) this;
+            throw new HttpRequestBuildException("The Tag can't be empty!!!");
         }
 
         this.tag = tag;
-        return (T) this;
-    }
-
-    public T savePath(String savePath) {
-        if (TextUtils.isEmpty(savePath)) {
-            return (T) this;
-        }
-
-        this.savePath = savePath;
-        return (T) this;
-    }
-
-    public T saveFileName(String saveFileName) {
-        if (TextUtils.isEmpty(saveFileName)) {
-            return (T) this;
-        }
-
-        this.saveFileName = saveFileName;
         return (T) this;
     }
 
@@ -205,15 +185,15 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
 
     public R build() {
         if (TextUtils.isEmpty(url)) {
-            throw new NullPointerException("url can't be empty!!!");
+            throw new HttpRequestBuildException("The URL can't be empty!!!");
         }
 
         if (HttpConstants.Method.DOWNLOAD.equals(requestMethod)) {
             if (TextUtils.isEmpty(savePath)) {
-                throw new NullPointerException("savePath can't be empty!!!");
+                throw new HttpRequestBuildException("The savePath can't be empty!!!");
             }
             if (TextUtils.isEmpty(saveFileName)) {
-                throw new NullPointerException("saveFileName can't be empty!!!");
+                throw new HttpRequestBuildException("The saveFileName can't be empty!!!");
             }
         }
 

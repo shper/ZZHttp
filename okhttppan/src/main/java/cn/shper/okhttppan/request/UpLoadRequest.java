@@ -1,5 +1,7 @@
 package cn.shper.okhttppan.request;
 
+import android.text.TextUtils;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.FileNameMap;
@@ -11,6 +13,7 @@ import java.util.Map;
 import cn.shper.okhttppan.callback.BaseCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.entity.FileInput;
+import cn.shper.okhttppan.exception.HttpRequestBuildException;
 import cn.shper.okhttppan.requestcall.UploadRequestCall;
 import okhttp3.FormBody;
 import okhttp3.Headers;
@@ -36,14 +39,24 @@ public class UpLoadRequest extends BaseRequest<UpLoadRequest, UploadRequestCall>
     }
 
     public UpLoadRequest files(String key, Map<String, File> files) {
+        if (TextUtils.isEmpty(key) || null == files || files.isEmpty()) {
+            throw new HttpRequestBuildException("The files are can't be empty!!!");
+        }
+
         for (String filename : files.keySet()) {
             this.files.add(new FileInput(key, filename, files.get(filename)));
         }
+
         return this;
     }
 
-    public UpLoadRequest addFile(String name, String filename, File file) {
-        files.add(new FileInput(name, filename, file));
+    public UpLoadRequest addFile(String name, String fileName, File file) {
+
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(fileName) || null == file) {
+            throw new HttpRequestBuildException("The name or fileName or file can't be empty!!!");
+        }
+
+        files.add(new FileInput(name, fileName, file));
         return this;
     }
 
@@ -53,7 +66,7 @@ public class UpLoadRequest extends BaseRequest<UpLoadRequest, UploadRequestCall>
     }
 
     private RequestBody buildRequestBody() {
-        if (files == null || files.isEmpty()) {
+        if (null == files || files.isEmpty()) {
             FormBody.Builder builder = new FormBody.Builder();
             addParams(builder);
             return builder.build();
@@ -72,7 +85,7 @@ public class UpLoadRequest extends BaseRequest<UpLoadRequest, UploadRequestCall>
     }
 
     private void addParams(MultipartBody.Builder builder) {
-        if (params != null && !params.isEmpty()) {
+        if (null != params && !params.isEmpty()) {
             for (String key : params.keySet()) {
                 builder.addPart(Headers.of("Content-Disposition", "form-data; name=\"" + key + "\""),
                         RequestBody.create(null, String.valueOf(params.get(key))));
@@ -81,7 +94,7 @@ public class UpLoadRequest extends BaseRequest<UpLoadRequest, UploadRequestCall>
     }
 
     private void addParams(FormBody.Builder builder) {
-        if (params != null && !params.isEmpty()) {
+        if (null != params && !params.isEmpty()) {
             for (String key : params.keySet()) {
                 builder.add(key, String.valueOf(params.get(key)));
             }

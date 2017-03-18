@@ -14,6 +14,7 @@ import java.util.Map;
 import cn.shper.okhttppan.callback.BaseCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.entity.FileInput;
+import cn.shper.okhttppan.exception.HttpRequestBuildException;
 import cn.shper.okhttppan.requestcall.DefaultRequestCall;
 import okhttp3.FormBody;
 import okhttp3.Headers;
@@ -29,7 +30,7 @@ import okhttp3.RequestBody;
  */
 public class PostRequest extends BaseRequest<PostRequest, DefaultRequestCall> {
 
-    private HashMap<String,String> bodys;
+    private HashMap<String, String> bodys;
     protected List<FileInput> files;
 
     public PostRequest() {
@@ -41,7 +42,7 @@ public class PostRequest extends BaseRequest<PostRequest, DefaultRequestCall> {
         return builder.post(buildRequestBody()).build();
     }
 
-    public PostRequest body(String key,String value){
+    public PostRequest body(String key, String value) {
         if (TextUtils.isEmpty(key) || TextUtils.isEmpty(value)) {
             return this;
         }
@@ -54,7 +55,7 @@ public class PostRequest extends BaseRequest<PostRequest, DefaultRequestCall> {
         return this;
     }
 
-    public PostRequest bodys(HashMap<String,String> bodys){
+    public PostRequest bodys(HashMap<String, String> bodys) {
         if (null == bodys || bodys.isEmpty()) {
             return this;
         }
@@ -68,19 +69,28 @@ public class PostRequest extends BaseRequest<PostRequest, DefaultRequestCall> {
     }
 
     public PostRequest files(String key, Map<String, File> files) {
+        if (TextUtils.isEmpty(key) || null == files || files.isEmpty()) {
+            throw new HttpRequestBuildException("The files are can't be empty!!!");
+        }
+
         for (String filename : files.keySet()) {
             this.files.add(new FileInput(key, filename, files.get(filename)));
         }
+
         return this;
     }
 
-    public PostRequest addFile(String name, String filename, File file) {
-        files.add(new FileInput(name, filename, file));
+    public PostRequest addFile(String name, String fileName, File file) {
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(fileName) || null == file) {
+            throw new HttpRequestBuildException("The name or fileName or file can't be empty!!!");
+        }
+
+        files.add(new FileInput(name, fileName, file));
         return this;
     }
 
     private RequestBody buildRequestBody() {
-        if (files == null || files.isEmpty()) {
+        if (null == files || files.isEmpty()) {
             FormBody.Builder builder = new FormBody.Builder();
             addBodys(builder);
             return builder.build();
@@ -99,7 +109,7 @@ public class PostRequest extends BaseRequest<PostRequest, DefaultRequestCall> {
     }
 
     private void addBodys(MultipartBody.Builder builder) {
-        if (bodys != null && !bodys.isEmpty()) {
+        if (null != bodys && !bodys.isEmpty()) {
             for (String key : bodys.keySet()) {
                 builder.addPart(Headers.of("Content-Disposition", "form-data; name=\"" + key + "\""),
                         RequestBody.create(null, String.valueOf(bodys.get(key))));
@@ -108,7 +118,7 @@ public class PostRequest extends BaseRequest<PostRequest, DefaultRequestCall> {
     }
 
     private void addBodys(FormBody.Builder builder) {
-        if (bodys != null && !bodys.isEmpty()) {
+        if (null != bodys && !bodys.isEmpty()) {
             for (String key : bodys.keySet()) {
                 builder.add(key, String.valueOf(bodys.get(key)));
             }
