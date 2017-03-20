@@ -18,7 +18,7 @@ public class OkHttpPanApiStore {
     public static void getWeather(String cityId, HttpCallback callback) {
         OkHttpPan.get().url(WEATHER_URL + cityId + ".html")
                 .jsonDataKey("weatherinfo")
-                .build().execute(WeatherInfo.class, callback);
+                .build().enqueue(WeatherInfo.class, callback);
     }
 
     /**
@@ -26,7 +26,7 @@ public class OkHttpPanApiStore {
      */
     public static void getWeatherJson(String cityId, HttpCallback callback){
         OkHttpPan.get().url(WEATHER_URL + cityId + ".html")
-                .build().execute(null, callback);
+                .build().enqueue(null, callback);
     }
 
 }

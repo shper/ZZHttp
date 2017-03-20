@@ -36,13 +36,13 @@ public class DownloadRequestCall extends BaseRequestCall {
         call = downloadClient.newCall(request);
     }
 
-    public void execute(DownloadCallback callback) {
+    public void enqueue(DownloadCallback callback) {
         buildCall();
         if (callback != null) {
             callback.onStart(request);
         }
 
-        OkHttpPan.getInstance().execute(this, callback);
+        OkHttpPan.getInstance().enqueue(this, callback);
     }
 
 }

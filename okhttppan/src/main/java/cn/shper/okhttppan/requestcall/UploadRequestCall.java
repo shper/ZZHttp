@@ -36,13 +36,13 @@ public class UploadRequestCall extends BaseRequestCall {
         call = uploadClient.newCall(request);
     }
 
-    public <T> void execute(Class<T> clazz, UploadCallback callback) {
+    public <T> void enqueue(Class<T> clazz, UploadCallback callback) {
         buildCall(callback);
         if (callback != null) {
             callback.onStart(request);
         }
 
-        OkHttpPan.getInstance().execute(this, clazz, callback);
+        OkHttpPan.getInstance().enqueue(this, clazz, callback);
     }
 
 }

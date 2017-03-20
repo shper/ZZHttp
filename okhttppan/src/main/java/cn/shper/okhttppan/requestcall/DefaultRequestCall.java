@@ -41,12 +41,12 @@ public class DefaultRequestCall extends BaseRequestCall {
         }
     }
 
-    public <T> void execute(Class<T> clazz, HttpCallback callback) {
+    public <T> void enqueue(Class<T> clazz, HttpCallback callback) {
         buildCall();
         if (callback != null) {
             callback.onBefore(request);
         }
 
-        OkHttpPan.getInstance().execute(this, clazz, callback);
+        OkHttpPan.getInstance().enqueue(this, clazz, callback);
     }
 }

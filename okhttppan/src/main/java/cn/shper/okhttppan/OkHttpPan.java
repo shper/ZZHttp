@@ -57,7 +57,7 @@ import okhttp3.Response;
  * .readTimeout(int)                                             // [可选] 自定义数据读取超时时间
  * .writeTimeout(int)                                            // [可选] 自定义数据写入超时时间
  * .token(key,value)                                             // [可选] 使用此标签 请求中带 token
- * .build().execute(<$Entity>.class, callback);
+ * .build().enqueue(<$Entity>.class, callback);
  */
 public class OkHttpPan {
 
@@ -164,7 +164,7 @@ public class OkHttpPan {
     /**
      * 执行 get post 请求
      */
-    public <T> void execute(BaseRequestCall requestCall, final Class<T> clazz, final BaseCallback callback) {
+    public <T> void enqueue(BaseRequestCall requestCall, final Class<T> clazz, final BaseCallback callback) {
         // 获取 请求参数
         final String requestMethod = requestCall.getOkHttpRequest().getRequestMethod();
         // 获取 json 相关的数据
@@ -208,7 +208,7 @@ public class OkHttpPan {
     /**
      * 执行 download 请求
      */
-    public void execute(BaseRequestCall requestCall, DownloadCallback callback) {
+    public void enqueue(BaseRequestCall requestCall, DownloadCallback callback) {
         if (callback == null) {
             callback = DownloadCallback.DEFAULT;
         }
