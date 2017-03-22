@@ -86,16 +86,22 @@ public class OkHttpPan {
     }
 
     public static void initialization(OkHttpPanConfig config) {
-
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         if (null != config) {
-            // 设置超时时间
-            builder.connectTimeout(config.connectTimeout, TimeUnit.SECONDS)
-                    .readTimeout(config.readTimeout, TimeUnit.SECONDS)
-                    .writeTimeout(config.writeTimeout, TimeUnit.SECONDS);
-
+            if (config.connectTimeout > 0) {
+                builder.connectTimeout(config.connectTimeout, TimeUnit.SECONDS);
+            }
+            if (config.readTimeout > 0) {
+                builder.readTimeout(config.readTimeout, TimeUnit.SECONDS);
+            }
+            if (config.writeTimeout > 0) {
+                builder.writeTimeout(config.writeTimeout, TimeUnit.SECONDS);
+            }
             if (null != config.sslParams) {
                 builder.sslSocketFactory(config.sslParams.sSLSocketFactory, config.sslParams.trustManager);
+            }
+            if (null != config.dns) {
+                builder.dns(config.dns);
             }
         }
 
@@ -512,16 +518,19 @@ public class OkHttpPan {
      * 解析 JSON
      */
     private <T> Object parseJson(Object data, Class<T> clazz) {
-        // 如clazz为null，不需要解析，由调用方自行处理
-        if (data != null && clazz != null) {
-            if (data instanceof JSONArray) {
-                JSONArray dataArray = (JSONArray) data;
-                return JSON.parseArray(dataArray.toString(), clazz);
-            } else if (data instanceof JSONObject) {
-                JSONObject dataObj = (JSONObject) data;
-                return JSON.parseObject(dataObj.toString(), clazz);
-            }
+        // 如clazz为null 或者 为 String 时，不需要解析，由调用方自行处理
+        if (null == data || null == clazz || clazz.equals(String.class)) {
+            return data;
         }
+
+        if (data instanceof JSONArray) {
+            JSONArray dataArray = (JSONArray) data;
+            return JSON.parseArray(dataArray.toString(), clazz);
+        } else if (data instanceof JSONObject) {
+            JSONObject dataObj = (JSONObject) data;
+            return JSON.parseObject(dataObj.toString(), clazz);
+        }
+
         return data;
     }
 

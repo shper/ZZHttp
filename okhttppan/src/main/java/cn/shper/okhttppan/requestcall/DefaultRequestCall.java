@@ -49,4 +49,5 @@ public class DefaultRequestCall extends BaseRequestCall {
 
         OkHttpPan.getInstance().enqueue(this, clazz, callback);
     }
+
 }

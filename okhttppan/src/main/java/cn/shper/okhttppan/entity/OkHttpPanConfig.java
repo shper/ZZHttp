@@ -2,6 +2,7 @@ package cn.shper.okhttppan.entity;
 
 import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.utils.HttpsCertUtils;
+import okhttp3.Dns;
 
 /**
  * Author: Shper
@@ -26,6 +27,8 @@ public class OkHttpPanConfig {
     public int writeTimeout = HttpConstants.Timeout.DEFAULT_WRITE;
     // HTTPS SSL 证书
     public HttpsCertUtils.SSLParams sslParams;
+    // HttpDns
+    public Dns dns;
 
     public static class Builder {
 
@@ -72,6 +75,11 @@ public class OkHttpPanConfig {
 
         public Builder sslParams(HttpsCertUtils.SSLParams sslParams) {
             config.sslParams = sslParams;
+            return this;
+        }
+
+        public Builder dns(Dns dns) {
+            config.dns = dns;
             return this;
         }
 
