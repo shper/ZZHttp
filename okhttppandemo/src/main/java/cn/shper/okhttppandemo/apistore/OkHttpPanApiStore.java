@@ -22,7 +22,7 @@ public class OkHttpPanApiStore {
     }
 
     /**
-     * 获取天气原始Json数据s
+     * 获取天气原始Json数据
      */
     public static void getWeatherJson(String cityId, HttpCallback callback){
         OkHttpPan.get().url(WEATHER_URL + cityId + ".html")

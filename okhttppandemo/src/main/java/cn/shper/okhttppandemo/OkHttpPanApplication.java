@@ -2,12 +2,9 @@ package cn.shper.okhttppandemo;
 
 import android.app.Application;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-
 import cn.shper.okhttppan.OkHttpPan;
+import cn.shper.okhttppan.entity.OkHttpPanConfig;
+import cn.shper.okhttppandemo.network.HttpDns;
 
 /**
  * Author: Shper
@@ -23,9 +20,15 @@ public class OkHttpPanApplication extends Application {
         super.onCreate();
         instance = this;
 
+        OkHttpPanConfig config = new OkHttpPanConfig.Builder()
+                .dns(new HttpDns())
+                .Build();
+
         // 初始化 OkHttpPan
-        OkHttpPan.initialization();
-        OkHttpPan.setDebug(true);
+        OkHttpPan.initialization(config);
+        if (BuildConfig.DEBUG) {
+            OkHttpPan.setDebug(true);
+        }
     }
 
     public static OkHttpPanApplication getInstance() {
