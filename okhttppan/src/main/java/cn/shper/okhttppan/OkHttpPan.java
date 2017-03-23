@@ -37,9 +37,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
 /**
- * Author shper
- * Description OkHttp封装类
- * Version 0.1 16-6-7 C 创建
+ * Author: Shper
+ * Description: OkHttp封装类
+ * Version: 0.1 16-6-7 C 创建
  * <p>
  * <p>
  * 使用列子：

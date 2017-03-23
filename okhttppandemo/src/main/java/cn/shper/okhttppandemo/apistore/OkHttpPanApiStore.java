@@ -15,7 +15,7 @@ public class OkHttpPanApiStore {
     /**
      * 获取天气详情
      */
-    public static void getWeather(String cityId, HttpCallback callback) {
+    public static void getWeather(String cityId, HttpCallback<WeatherInfo> callback) {
         OkHttpPan.get().url(WEATHER_URL + cityId + ".html")
                 .jsonDataKey("weatherinfo")
                 .build().enqueue(WeatherInfo.class, callback);
@@ -27,6 +27,11 @@ public class OkHttpPanApiStore {
     public static void getWeatherJson(String cityId, HttpCallback callback){
         OkHttpPan.get().url(WEATHER_URL + cityId + ".html")
                 .build().enqueue(null, callback);
+    }
+
+    public static void get12306(HttpCallback<String> callback){
+        OkHttpPan.get().url("https://kyfw.12306.cn/otn/")
+                .build().enqueue(String.class, callback);
     }
 
 }

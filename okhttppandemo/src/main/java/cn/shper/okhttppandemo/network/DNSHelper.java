@@ -12,7 +12,7 @@ import cn.shper.okhttppandemo.util.Logger;
 
 /**
  * Description: TODO
- * Author: xupan.shi
+ * Author: Shper
  * Version: V0.1 2017/3/22
  */
 public class DNSHelper {
@@ -25,12 +25,21 @@ public class DNSHelper {
     public static String getIpByHost(String hostname) {
         String result = httpRequest(HTTP_DNS_PARSE_URL + hostname);
 
-        if (TextUtils.isEmpty(result) || !result.contains(";")){
+        if (TextUtils.isEmpty(result) || !result.contains(";")) {
             return result;
         }
 
         String[] ips = httpRequest(HTTP_DNS_PARSE_URL + hostname).split(";");
         return ips.length > 0 ? ips[0] : "";
+    }
+
+    public static String getIpUrl(String url, String host, String ip) {
+        if (url == null || host == null || ip == null) {
+            Logger.d("TAG", "params is Empty!!!");
+            return null;
+        }
+
+        return url.replaceFirst(host, ip);
     }
 
     private static String httpRequest(String url) {

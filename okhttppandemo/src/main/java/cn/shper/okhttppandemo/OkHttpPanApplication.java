@@ -3,8 +3,9 @@ package cn.shper.okhttppandemo;
 import android.app.Application;
 
 import cn.shper.okhttppan.OkHttpPan;
-import cn.shper.okhttppan.entity.OkHttpPanConfig;
-import cn.shper.okhttppandemo.network.HttpDns;
+import cn.shper.okhttppan.config.OkHttpPanConfig;
+import cn.shper.okhttppan.utils.HttpsCertUtils;
+import cn.shper.okhttppandemo.network.HttpDnsInterceptor;
 
 /**
  * Author: Shper
@@ -21,7 +22,9 @@ public class OkHttpPanApplication extends Application {
         instance = this;
 
         OkHttpPanConfig config = new OkHttpPanConfig.Builder()
-                .dns(new HttpDns())
+                //.dns(new HttpDns())
+                .netWorkInterceptor(new HttpDnsInterceptor())
+                .sslParams(HttpsCertUtils.getSSLParams(null, null, null))
                 .Build();
 
         // 初始化 OkHttpPan

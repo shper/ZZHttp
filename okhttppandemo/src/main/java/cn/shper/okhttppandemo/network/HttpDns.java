@@ -12,7 +12,7 @@ import okhttp3.Dns;
 
 /**
  * Description: TODO
- * Author: xupan.shi
+ * Author: Shper
  * Version: V0.1 2017/3/22
  */
 public class HttpDns implements Dns {
@@ -20,7 +20,7 @@ public class HttpDns implements Dns {
     @Override
     public List<InetAddress> lookup(String hostname) throws UnknownHostException {
         String ip = DNSHelper.getIpByHost(hostname);
-        Logger.d("hostname: " + hostname + " [" + ip + "]");
+        Logger.d(String.format("hostname: %1$s; ip: %2$s", hostname, ip));
 
         if (TextUtils.isEmpty(ip)) {
             return SYSTEM.lookup(hostname);

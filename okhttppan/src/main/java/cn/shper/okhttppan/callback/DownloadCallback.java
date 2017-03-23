@@ -6,9 +6,9 @@ import cn.shper.okhttppan.exception.HttpError;
 import okhttp3.Request;
 
 /**
- * Author shper
- * Description
- * Version 0.1 16-6-11 C 创建
+ * Author: Shper
+ * Description: TODO
+ * Version: 0.1 16-6-11 C 创建
  */
 public abstract class DownloadCallback extends BaseCallback {
 

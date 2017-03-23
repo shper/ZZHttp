@@ -3,9 +3,9 @@ package cn.shper.okhttppan.entity;
 import java.io.File;
 
 /**
- * Author shper
- * Description TODO
- * Version 0.1 16-6-12 C 创建
+ * Author: Shper
+ * Description: TODO
+ * Version: 0.1 16-6-12 C 创建
  */
 public class FileInput {
 

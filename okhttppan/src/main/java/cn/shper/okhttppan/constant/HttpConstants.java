@@ -1,9 +1,9 @@
 package cn.shper.okhttppan.constant;
 
 /**
- * Author shper
- * Description TODO
- * Version 0.1 16-6-8 C 创建
+ * Author: Shper
+ * Description: TODO
+ * Version: 0.1 16-6-8 C 创建
  */
 public interface HttpConstants {
 

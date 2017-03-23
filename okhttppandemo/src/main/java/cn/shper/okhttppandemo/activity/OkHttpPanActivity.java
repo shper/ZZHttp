@@ -9,10 +9,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.shper.okhttppan.callback.HttpCallback;
-import cn.shper.okhttppan.constant.HttpError;
+import cn.shper.okhttppan.exception.HttpError;
 import cn.shper.okhttppandemo.R;
 import cn.shper.okhttppandemo.apistore.OkHttpPanApiStore;
-import cn.shper.okhttppandemo.entity.WeatherInfo;
+import cn.shper.okhttppandemo.util.Logger;
 
 /**
  * Author: Shper
@@ -38,30 +38,42 @@ public class OkHttpPanActivity extends AppCompatActivity {
     public void onGetWeatherClick() {
         clearTextDate();
 
-        OkHttpPanApiStore.getWeather("101210101", new HttpCallback<WeatherInfo>() {
-            @Override
-            public void onSuccess(WeatherInfo weatherInfo) {
-                weatherInfoTxt.setText(weatherInfo.toString());
-            }
+//        OkHttpPanApiStore.getWeather("101210101", new HttpCallback<WeatherInfo>() {
+//            @Override
+//            public void onSuccess(WeatherInfo weatherInfo) {
+//                weatherInfoTxt.setText(weatherInfo.toString());
+//            }
+//
+//            @Override
+//            public void onFail(HttpError error) {
+//                weatherInfoTxt.setText(error.getMessage());
+//            }
+//        });
 
+
+//        OkHttpPanApiStore.getWeatherJson("101210101", new HttpCallback() {
+//            @Override
+//            public void onSuccess(final Object object) {
+//                weatherInfoJsonTxt.setText(object.toString());
+//            }
+//
+//            @Override
+//            public void onFail(HttpError error) {
+//                weatherInfoJsonTxt.setText(error.getMessage());
+//            }
+//
+//        });
+
+        OkHttpPanApiStore.get12306(new HttpCallback<String>() {
             @Override
             public void onFail(HttpError error) {
-                weatherInfoTxt.setText(error.getMessage());
-            }
-        });
-
-
-        OkHttpPanApiStore.getWeatherJson("101210101", new HttpCallback() {
-            @Override
-            public void onSuccess(final Object object) {
-                weatherInfoJsonTxt.setText(object.toString());
+                Logger.e(error.getMessage());
             }
 
             @Override
-            public void onFail(HttpError error) {
-                weatherInfoJsonTxt.setText(error.getMessage());
+            public void onSuccess(String obj) {
+                Logger.d(obj);
             }
-
         });
     }
 
