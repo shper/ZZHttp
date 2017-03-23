@@ -1,7 +1,5 @@
 package cn.shper.okhttppan.config;
 
-import android.text.TextUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,14 +16,8 @@ import okhttp3.Interceptor;
  */
 public class OkHttpPanConfig {
 
-    // 返回的 Json 正常时的标识Key
-    public String jsonStatusKey;
-    // 返回的 Json 正常时的成功Value
-    public String jsonStatusSuccessValue;
-    // 返回的 Json 正常时，数据标识Key
-    public String jsonDataKey;
-    // 返回的 Json 失败时的标识Key
-    public String jsonFailedKey;
+    // 自定义 Response 解析器
+    public ResponseParser responseParser;
     // 网络连接超时时间
     public int connectTimeout = HttpConstants.Timeout.DEFAULT_CONNECT;
     // 网络读取超时时间
@@ -48,39 +40,12 @@ public class OkHttpPanConfig {
             this.config = new OkHttpPanConfig();
         }
 
-        public Builder jsonStatusKey(String jsonStatusKey) {
-            if (TextUtils.isEmpty(jsonStatusKey)) {
-                throw new HttpClientConfigException("The JsonStatusKey can't be Empty!!!");
+        public Builder responseParser(ResponseParser responseParser) {
+            if (null == responseParser) {
+                throw new HttpClientConfigException("The responseParser can't be Empty!!!");
             }
 
-            config.jsonStatusKey = jsonStatusKey;
-            return this;
-        }
-
-        public Builder jsonStatusSuccessValue(String jsonStatusSuccessValue) {
-            if (TextUtils.isEmpty(jsonStatusSuccessValue)) {
-                throw new HttpClientConfigException("The JsonStatusSuccessValue can't be Empty!!!");
-            }
-
-            config.jsonStatusSuccessValue = jsonStatusSuccessValue;
-            return this;
-        }
-
-        public Builder jsonDataKey(String jsonDataKey) {
-            if (TextUtils.isEmpty(jsonDataKey)) {
-                throw new HttpClientConfigException("The JsonDataKey can't be Empty!!!");
-            }
-
-            config.jsonDataKey = jsonDataKey;
-            return this;
-        }
-
-        public Builder jsonFailedKey(String jsonFailedKey) {
-            if (TextUtils.isEmpty(jsonFailedKey)) {
-                throw new HttpClientConfigException("The JsonFailedKey can't be Empty!!!");
-            }
-
-            config.jsonFailedKey = jsonFailedKey;
+            config.responseParser = responseParser;
             return this;
         }
 

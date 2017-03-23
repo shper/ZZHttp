@@ -31,9 +31,6 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
     protected HashMap<String, String> params;
     protected HashMap<String, String> headers;
 
-    protected String jsonStatusKey;
-    protected String jsonStatusSuccessValue;
-    protected String jsonDataKey;
     protected Boolean forceLogin;
 
     protected String savePath;
@@ -112,33 +109,6 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
         }
 
         this.params.putAll(params);
-        return (T) this;
-    }
-
-    public T jsonStatusKey(String jsonStatusKey) {
-        if (TextUtils.isEmpty(jsonStatusKey)) {
-            throw new HttpRequestException("The JsonStatusKey can't be empty!!!");
-        }
-
-        this.jsonStatusKey = jsonStatusKey;
-        return (T) this;
-    }
-
-    public T jsonStatusSuccessValue(String jsonStatusSuccessValue) {
-        if (TextUtils.isEmpty(jsonStatusSuccessValue)) {
-            throw new HttpRequestException("The JsonStatusSuccessValue can't be empty!!!");
-        }
-
-        this.jsonStatusSuccessValue = jsonStatusSuccessValue;
-        return (T) this;
-    }
-
-    public T jsonDataKey(String jsonDataKey) {
-        if (TextUtils.isEmpty(jsonDataKey)) {
-            throw new HttpRequestException("The JsonDataKey can't be empty!!!");
-        }
-
-        this.jsonDataKey = jsonDataKey;
         return (T) this;
     }
 
@@ -274,18 +244,6 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
      * @param callback
      */
     public abstract Request getRequest(BaseCallback callback);
-
-    public String getJsonStatusKey() {
-        return jsonStatusKey;
-    }
-
-    public String getJsonStatusSuccessValue() {
-        return jsonStatusSuccessValue;
-    }
-
-    public String getJsonDataKey() {
-        return jsonDataKey;
-    }
 
     public Boolean getForceLogin() {
         return forceLogin;

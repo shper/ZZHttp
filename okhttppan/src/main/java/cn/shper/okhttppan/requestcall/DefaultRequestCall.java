@@ -1,5 +1,6 @@
 package cn.shper.okhttppan.requestcall;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import cn.shper.okhttppan.OkHttpPan;
@@ -41,13 +42,38 @@ public class DefaultRequestCall extends BaseRequestCall {
         }
     }
 
-    public <T> void enqueue(Class<T> clazz, HttpCallback callback) {
+    public <T> T execute() {
+        return execute(null);
+    }
+
+    public <T> T execute(Class<T> clazz) {
+        try {
+            return OkHttpPan.getInstance().execute(this, checkClass(clazz));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public void enqueue(HttpCallback<String> callback) {
+        enqueue(null, callback);
+    }
+
+    public <T> void enqueue(Class<T> clazz, HttpCallback<T> callback) {
         buildCall();
         if (callback != null) {
             callback.onBefore(request);
         }
 
-        OkHttpPan.getInstance().enqueue(this, clazz, callback);
+        OkHttpPan.getInstance().enqueue(this, checkClass(clazz), callback);
+    }
+
+    private <T> Class<T> checkClass(Class<T> clazz) {
+        if (null == clazz) {
+            return (Class<T>) String.class;
+        }
+        return clazz;
     }
 
 }
