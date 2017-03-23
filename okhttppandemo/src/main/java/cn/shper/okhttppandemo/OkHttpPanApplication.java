@@ -6,6 +6,7 @@ import cn.shper.okhttppan.OkHttpPan;
 import cn.shper.okhttppan.config.OkHttpPanConfig;
 import cn.shper.okhttppan.utils.HttpsCertUtils;
 import cn.shper.okhttppandemo.network.HttpDnsInterceptor;
+import cn.shper.okhttppandemo.parser.MResponseParser;
 
 /**
  * Author: Shper
@@ -25,6 +26,7 @@ public class OkHttpPanApplication extends Application {
                 //.dns(new HttpDns())
                 .netWorkInterceptor(new HttpDnsInterceptor())
                 .sslParams(HttpsCertUtils.getSSLParams(null, null, null))
+                .responseParser(new MResponseParser())
                 .Build();
 
         // 初始化 OkHttpPan
