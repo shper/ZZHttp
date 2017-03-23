@@ -2,7 +2,7 @@ package cn.shper.okhttppan.callback;
 
 import java.io.File;
 
-import cn.shper.okhttppan.constant.HttpError;
+import cn.shper.okhttppan.exception.HttpError;
 import okhttp3.Request;
 
 /**

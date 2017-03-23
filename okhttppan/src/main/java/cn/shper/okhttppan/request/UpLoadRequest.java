@@ -13,7 +13,7 @@ import java.util.Map;
 import cn.shper.okhttppan.callback.BaseCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.entity.FileInput;
-import cn.shper.okhttppan.exception.HttpRequestBuildException;
+import cn.shper.okhttppan.exception.HttpRequestException;
 import cn.shper.okhttppan.requestcall.UploadRequestCall;
 import okhttp3.FormBody;
 import okhttp3.Headers;
@@ -40,7 +40,7 @@ public class UpLoadRequest extends BaseRequest<UpLoadRequest, UploadRequestCall>
 
     public UpLoadRequest files(String key, Map<String, File> files) {
         if (TextUtils.isEmpty(key) || null == files || files.isEmpty()) {
-            throw new HttpRequestBuildException("The files are can't be empty!!!");
+            throw new HttpRequestException("The files are can't be empty!!!");
         }
 
         for (String filename : files.keySet()) {
@@ -53,7 +53,7 @@ public class UpLoadRequest extends BaseRequest<UpLoadRequest, UploadRequestCall>
     public UpLoadRequest addFile(String name, String fileName, File file) {
 
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(fileName) || null == file) {
-            throw new HttpRequestBuildException("The name or fileName or file can't be empty!!!");
+            throw new HttpRequestException("The name or fileName or file can't be empty!!!");
         }
 
         files.add(new FileInput(name, fileName, file));

@@ -23,16 +23,16 @@ import cn.shper.okhttppan.callback.DownloadCallback;
 import cn.shper.okhttppan.callback.HttpCallback;
 import cn.shper.okhttppan.callback.UploadCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
-import cn.shper.okhttppan.constant.HttpError;
-import cn.shper.okhttppan.entity.OkHttpPanConfig;
+import cn.shper.okhttppan.exception.HttpError;
+import cn.shper.okhttppan.config.OkHttpPanConfig;
 import cn.shper.okhttppan.request.DownloadRequest;
 import cn.shper.okhttppan.request.GetRequest;
 import cn.shper.okhttppan.request.PostRequest;
 import cn.shper.okhttppan.request.UpLoadRequest;
 import cn.shper.okhttppan.requestcall.BaseRequestCall;
-import cn.shper.okhttppan.utils.HttpsCertUtils;
 import cn.shper.okhttppan.utils.Logger;
 import okhttp3.Call;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
@@ -102,6 +102,16 @@ public class OkHttpPan {
             }
             if (null != config.dns) {
                 builder.dns(config.dns);
+            }
+            if (null != config.interceptors && !config.interceptors.isEmpty()) {
+                for (Interceptor interceptor : config.interceptors) {
+                    builder.addInterceptor(interceptor);
+                }
+            }
+            if (null != config.netWorkInterceptors && !config.netWorkInterceptors.isEmpty()) {
+                for (Interceptor interceptor : config.netWorkInterceptors) {
+                    builder.addNetworkInterceptor(interceptor);
+                }
             }
         }
 
@@ -191,7 +201,6 @@ public class OkHttpPan {
 
             @Override
             public void onResponse(final Call call, final Response response) {
-                // try {
                 if (call.isCanceled()) {
                     Logger.e(OkHttpPan.class.getName() + "请求被取消");
                     // 发送失败回调消息
@@ -201,12 +210,6 @@ public class OkHttpPan {
                 // 发送成功回调消息
                 sendDefaultSuccessResultCallback(response, clazz, callback, jsonStatusKey,
                         jsonStatusSuccessValue, jsonDataKey, requestMethod);
-//                } catch (Exception e) {
-//                    Logger.e(OkHttpPan.class.getName() + "http code = " + response.code() +
-//                            ", response msg : " + response.message());
-//                    // 发送失败回调消息
-//                    sendDefaultFailResultCallback(new HttpError(HttpError.ERR_CODE_UNKNOWN), callback);
-//                }
             }
         });
     }

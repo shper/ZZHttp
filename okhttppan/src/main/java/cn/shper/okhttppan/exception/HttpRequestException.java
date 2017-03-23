@@ -5,9 +5,9 @@ package cn.shper.okhttppan.exception;
  * Author: xupan.shi
  * Version: V0.1 2017/3/18
  */
-public class HttpRequestBuildException extends RuntimeException {
+public class HttpRequestException extends RuntimeException {
 
-    public HttpRequestBuildException(String message) {
+    public HttpRequestException(String message) {
         super(message);
     }
 

@@ -1,6 +1,6 @@
 package cn.shper.okhttppan.callback;
 
-import cn.shper.okhttppan.constant.HttpError;
+import cn.shper.okhttppan.exception.HttpError;
 
 /**
  * Author shper

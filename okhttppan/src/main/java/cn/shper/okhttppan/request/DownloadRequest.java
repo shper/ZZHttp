@@ -4,7 +4,7 @@ import android.text.TextUtils;
 
 import cn.shper.okhttppan.callback.BaseCallback;
 import cn.shper.okhttppan.constant.HttpConstants;
-import cn.shper.okhttppan.exception.HttpRequestBuildException;
+import cn.shper.okhttppan.exception.HttpRequestException;
 import cn.shper.okhttppan.requestcall.DownloadRequestCall;
 import okhttp3.Request;
 
@@ -32,7 +32,7 @@ public class DownloadRequest extends BaseRequest<DownloadRequest, DownloadReques
 
     public DownloadRequest savePath(String savePath) {
         if (TextUtils.isEmpty(savePath)) {
-            throw new HttpRequestBuildException("The SavePath can't be empty!!!");
+            throw new HttpRequestException("The SavePath can't be empty!!!");
         }
 
         this.savePath = savePath;
@@ -41,7 +41,7 @@ public class DownloadRequest extends BaseRequest<DownloadRequest, DownloadReques
 
     public DownloadRequest saveFileName(String saveFileName) {
         if (TextUtils.isEmpty(saveFileName)) {
-            throw new HttpRequestBuildException("The SaveFileName can't be empty!!!");
+            throw new HttpRequestException("The SaveFileName can't be empty!!!");
         }
 
         this.saveFileName = saveFileName;
