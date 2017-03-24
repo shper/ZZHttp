@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import cn.shper.okhttppan.callback.BaseCallback;
+import cn.shper.okhttppan.config.ResponseParser;
 import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.exception.HttpRequestException;
 import cn.shper.okhttppan.requestcall.BaseRequestCall;
@@ -25,6 +26,8 @@ import okhttp3.Request;
 public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCall> {
 
     protected String requestMethod;
+    // 自定义 Response 解析器
+    protected ResponseParser requestResponseParser;
 
     protected String url;
     protected Object tag;
@@ -41,6 +44,15 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
     protected int writeTimeout;
 
     protected Request.Builder builder = new Request.Builder();
+
+    public T responseParser(ResponseParser responseParser) {
+        if (null == responseParser) {
+            throw new HttpRequestException("The responseParser can't be empty!!!");
+        }
+
+        this.requestResponseParser = responseParser;
+        return (T) this;
+    }
 
     public T requestMethod(String requestMethod) {
         if (TextUtils.isEmpty(requestMethod)) {
@@ -271,6 +283,10 @@ public abstract class BaseRequest<T extends BaseRequest, R extends BaseRequestCa
 
     public String getRequestMethod() {
         return requestMethod;
+    }
+
+    public ResponseParser getRequestResponseParser() {
+        return requestResponseParser;
     }
 
 }

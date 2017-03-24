@@ -17,7 +17,7 @@ import okhttp3.Interceptor;
 public class OkHttpPanConfig {
 
     // 自定义 Response 解析器
-    public ResponseParser responseParser;
+    public ResponseParser clientResponseParser;
     // 网络连接超时时间
     public int connectTimeout = HttpConstants.Timeout.DEFAULT_CONNECT;
     // 网络读取超时时间
@@ -45,7 +45,7 @@ public class OkHttpPanConfig {
                 throw new HttpClientConfigException("The responseParser can't be Empty!!!");
             }
 
-            config.responseParser = responseParser;
+            config.clientResponseParser = responseParser;
             return this;
         }
 

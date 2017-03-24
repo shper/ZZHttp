@@ -26,6 +26,10 @@ public class BaseRequestCall {
         return request;
     }
 
+    public BaseRequest getBaseRequest() {
+        return baseRequest;
+    }
+
     public BaseRequest getOkHttpRequest() {
         return baseRequest;
     }

@@ -26,6 +26,7 @@ import cn.shper.okhttppan.config.OkHttpPanConfig;
 import cn.shper.okhttppan.config.ResponseParser;
 import cn.shper.okhttppan.constant.HttpConstants;
 import cn.shper.okhttppan.exception.HttpError;
+import cn.shper.okhttppan.request.BaseRequest;
 import cn.shper.okhttppan.request.DownloadRequest;
 import cn.shper.okhttppan.request.GetRequest;
 import cn.shper.okhttppan.request.PostRequest;
@@ -35,6 +36,7 @@ import cn.shper.okhttppan.utils.Logger;
 import okhttp3.Call;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 
 /**
@@ -64,7 +66,7 @@ public class OkHttpPan {
     public boolean isDebug = false;
 
     // Response 解析器
-    ResponseParser responseParser;
+    private ResponseParser clientResponseParser;
 
     private volatile static OkHttpPan instance;
     private static OkHttpClient defaultClient;
@@ -122,7 +124,7 @@ public class OkHttpPan {
         getInstance();
 
         // Response 解析器
-        getInstance().responseParser = config.responseParser;
+        getInstance().clientResponseParser = config.clientResponseParser;
 
         Logger.i("OkHttpPan Initialized");
     }
@@ -184,13 +186,14 @@ public class OkHttpPan {
             return null;
         }
 
-        return parseResponse(response, clazz);
+        return parseResponse(requestCall.getBaseRequest(), response, clazz);
     }
 
     /**
      * 执行 get post 请求
      */
-    public <T> void enqueue(BaseRequestCall requestCall, final Class<T> clazz, final BaseCallback<T> callback) {
+    public <T> void enqueue(final BaseRequestCall requestCall, final Class<T> clazz,
+                            final BaseCallback<T> callback) {
         // 获取 请求参数
         final String requestMethod = requestCall.getOkHttpRequest().getRequestMethod();
 
@@ -212,7 +215,7 @@ public class OkHttpPan {
                 }
 
                 // 发送成功回调消息
-                sendDefaultSuccessResultCallback(parseResponse(response, clazz), requestMethod, callback);
+                sendDefaultSuccessResultCallback(parseResponse(requestCall.getBaseRequest(), response, clazz), requestMethod, callback);
             }
         });
     }
@@ -394,7 +397,7 @@ public class OkHttpPan {
         }
     }
 
-    private <T> T parseResponse(Response response, Class<T> clazz) throws IOException {
+    private <T> T parseResponse(BaseRequest baseRequest, Response response, Class<T> clazz) throws IOException {
         String responseBody = response.body().string();
         response.body().close();
 
@@ -410,8 +413,12 @@ public class OkHttpPan {
             }
         }
 
-        if (null != responseParser) {
-            return responseParser.parseResponse(responseBody, clazz);
+        // 优先使用请求的 ResponseParser
+        if (null != baseRequest && null != baseRequest.getRequestResponseParser()) {
+            return baseRequest.getRequestResponseParser().parseResponse(responseBody, clazz);
+        }
+        if (null != clientResponseParser) {
+            return clientResponseParser.parseResponse(responseBody, clazz);
         }
 
         // 未设置 ResponseParser 解析器时 默认使用 Gson 解析
