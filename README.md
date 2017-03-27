@@ -13,12 +13,9 @@ OkHttpPan 是一个 封装了 OkHttp 和 FastJson 的网络请求层，遵循建
     或者
 
     ```java
-       // 配置json、time信息，配置信息 均可选
+       // 配置Response解析器、timeout信息，配置信息 均可选
        OkHttpPanConfig config = new OkHttpPanConfig.Builder()
-           .jsonStatusKey("Status")
-           .jsonStatusSuccessValue("0")
-           .jsonDataKey("data")
-           .jsonFailedKey("failed")
+           .responseParser(new ResponseParser)
            .readTimeout(15)
            .readTimeout(25)
            .writeTimeout(35)
@@ -30,6 +27,16 @@ OkHttpPan 是一个 封装了 OkHttp 和 FastJson 的网络请求层，遵循建
     ```
 
 2.调用
+
+  * 共同参数优先级高于 OkHttpPanConfig 中的配置
+
+    ```
+    .responseParser(responseParser)
+    .connectTimeout(int)
+    .readTimeout(int)
+    .writeTimeout(int)
+    .build().enqueue(<$Entity>.class, callback);
+    ```
 
   * get 请求
 
