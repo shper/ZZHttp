@@ -87,6 +87,9 @@ public class OkHttpPan {
     }
 
     public static void initialization(OkHttpPanConfig config) {
+        // 初始化 OkHttpPan
+        getInstance();
+
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         if (null != config) {
             if (config.connectTimeout > 0) {
@@ -114,17 +117,14 @@ public class OkHttpPan {
                     builder.addNetworkInterceptor(interceptor);
                 }
             }
+
+            // Response 解析器
+            instance.clientResponseParser = config.clientResponseParser;
         }
 
         defaultClient = builder.build();
         // 初始化Handler
         respHandler = new Handler(Looper.getMainLooper());
-
-        // 初始化 OkHttpPan
-        getInstance();
-
-        // Response 解析器
-        getInstance().clientResponseParser = config.clientResponseParser;
 
         Logger.i("OkHttpPan Initialized");
     }

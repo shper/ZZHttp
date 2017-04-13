@@ -1,14 +1,13 @@
 apply plugin: 'com.android.application'
-apply from: rootProject.file('config.gradle')
 
 android {
-    compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
+    compileSdkVersion 22
+    buildToolsVersion '25.0.2'
 
     defaultConfig {
         applicationId "cn.shper.okhttppandemo"
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
+        minSdkVersion 9
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
 
@@ -25,12 +24,11 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile "com.android.support:appcompat-v7:${supportV7}"
+    compile 'com.android.support:appcompat-v7:22.2.1'
     compile project(':okhttppan')
-
-    compile "com.squareup.okhttp3:okhttp:${okhttp}"
-    compile "com.alibaba:fastjson:${fastjson}"
-
+    compile 'com.squareup.okhttp3:okhttp:3.5.0'
+    compile 'com.squareup.okio:okio:1.11.0'
+    compile 'com.alibaba:fastjson:1.2.17'
     compile 'com.jakewharton:butterknife:8.4.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {

@@ -1,14 +1,13 @@
 apply plugin: 'com.android.library'
-apply from: rootProject.file("config.gradle")
 
 android {
-    compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
+    compileSdkVersion 22
+    buildToolsVersion '25.0.2'
 
     defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-        versionCode 2017011201
+        minSdkVersion 9
+        targetSdkVersion 22
+        versionCode 17011201
         versionName "1.2.0"
     }
 
@@ -35,10 +34,9 @@ makeJar.dependsOn(clearJar, build)
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile "com.android.support:appcompat-v7:${supportV7}"
-
-    provided "com.squareup.okhttp3:okhttp:${okhttp}"
-    provided "com.alibaba:fastjson:${fastjson}"
-
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    provided 'com.squareup.okhttp3:okhttp:3.5.0'
+    provided 'com.squareup.okio:okio:1.11.0'
+    provided 'com.alibaba:fastjson:1.2.17'
     testCompile 'junit:junit:4.12'
 }
